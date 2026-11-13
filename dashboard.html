@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마케팅온 AI - 소상공인 AI 셀프 마케팅 솔루션</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#EEF2FF',
+                            100: '#E0E7FF',
+                            500: '#6366F1',
+                            600: '#4F46E5',
+                            700: '#4338CA',
+                            900: '#312E81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #F8FAFC; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(226, 232, 240, 0.8); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="text-slate-800 antialiased h-screen flex overflow-hidden">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl transition-all duration-300 transform translate-y-[-100px] opacity-0 pointer-events-none">
+        <div id="toast-icon" class="text-emerald-400"><i data-lucide="check-circle-2" class="w-5 h-5"></i></div>
+        <div id="toast-message" class="text-sm font-medium">알림 메시지입니다.</div>
+    </div>
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col justify-between hidden md:flex shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="p-6 flex items-center gap-3 border-b border-slate-100">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                    <i data-lucide="sparkles" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight text-slate-900">마케팅온 <span class="text-xs text-brand-600 font-extrabold bg-brand-50 px-2 py-0.5 rounded-full border border-brand-100">AI</span></h1>
+                    <p class="text-xs text-slate-400">소상공인 맞춤 마케팅</p>
+                </div>
+            </div>
+
+            <!-- Store Selector -->
+            <div class="px-4 py-4">
+                <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between cursor-pointer hover:bg-slate-100/80 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-700 font-bold text-xs flex items-center justify-center border border-amber-200">
+                            카페
+                        </div>
+                        <div class="text-left">
+                            <p class="text-xs text-slate-400 font-medium">현재 매장</p>
+                            <p class="text-sm font-bold text-slate-800 truncate w-28">성수 행복카페</p>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                </div>
+            </div>
+
+            <!-- Menu List -->
+            <nav class="px-3 space-y-1">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-semibold text-brand-600 bg-brand-50 transition">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i> 대시보드 개요
+                </button>
+                <button onclick="switchTab('generator')" id="nav-generator" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="wand-2" class="w-5 h-5"></i> AI 콘텐츠 스튜디오
+                    <span class="ml-auto bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">HOT</span>
+                </button>
+                <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="calendar" class="w-5 h-5"></i> 마케팅 캘린더
+                </button>
+                <button onclick="switchTab('review')" id="nav-review" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="message-square-quote" class="w-5 h-5"></i> AI 고객 리뷰 답글
+                    <span class="ml-auto bg-rose-100 text-rose-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full">3</span>
+                </button>
+                <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 transition">
+                    <i data-lucide="bar-chart-3" class="w-5 h-5"></i> 성과 분석
+                </button>
+            </nav>
+        </div>
+
+        <!-- Pro Plan Banner & User Info -->
+        <div class="p-4 space-y-3">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-4 shadow-sm relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center gap-1.5 text-amber-400 font-bold text-xs mb-1">
+                        <i data-lucide="crown" class="w-4 h-4"></i> PRO 멤버십 이용 중
+                    </div>
+                    <p class="text-xs text-slate-300 mb-3">AI 생성 크레딧: <span class="text-white font-bold">142/200</span> 잔여</p>
+                    <div class="w-full bg-slate-700 rounded-full h-1.5 mb-2">
+                        <div class="bg-brand-500 h-1.5 rounded-full" style="width: 70%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100 px-1">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-full bg-slate-200 border flex items-center justify-center font-bold text-slate-600">
+                        김사장
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold text-slate-800">김대표 님</p>
+                        <p class="text-[11px] text-slate-400">무료 체험 12일 남음</p>
+                    </div>
+                </div>
+                <button class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100">
+                    <i data-lucide="settings" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <!-- Top Header Bar -->
+        <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-4">
+                <!-- Mobile Menu Button -->
+                <button class="md:hidden text-slate-600 hover:text-slate-900">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+                <h2 id="page-title" class="text-lg font-bold text-slate-900">대시보드 개요</h2>
+            </div>
+
+            <!-- Top Actions -->
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('generator')" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-brand-500/20 flex items-center gap-2 transition active:scale-95">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>AI 콘텐츠 생성하기</span>
+                </button>
+                <div class="h-4 w-[1px] bg-slate-200 mx-1"></div>
+                <button class="p-2 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 relative">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full"></span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Main Views Container -->
+        <main id="main-content" class="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+
+            <!-- 1. DASHBOARD OVERVIEW VIEW -->
+            <div id="view-dashboard" class="space-y-6">
+                
+                <!-- Welcome Banner & AI Today Recommendation -->
+                <div class="bg-gradient-to-r from-brand-600 via-indigo-600 to-indigo-700 rounded-2xl p-6 text-white shadow-xl shadow-brand-600/10 relative overflow-hidden">
+                    <div class="absolute right-0 top-0 bottom-0 opacity-10 pointer-events-none flex items-center">
+                        <i data-lucide="bot" class="w-96 h-96 -mr-16"></i>
+                    </div>
+                    <div class="relative z-10 max-w-2xl">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-medium text-indigo-100 mb-3">
+                            <i data-lucide="cloud-rain" class="w-3.5 h-3.5 text-sky-300"></i>
+                            오늘 성수동 날씨: 비 유력 (강수확률 80%)
+                        </div>
+                        <h3 class="text-xl sm:text-2xl font-bold mb-2">오늘의 AI 추천 마케팅 미션 🌧️</h3>
+                        <p class="text-indigo-100 text-sm mb-5 leading-relaxed">
+                            "비 오는 날엔 달콤한 따뜻한 카페라떼 & 수제 쿠키 세트 15% 할인 포스팅을 인스타그램과 당근마켓에 업로드해보세요! 유입률이 약 28% 상승할 것으로 예측됩니다."
+                        </p>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button onclick="quickGenerate('비 오는 날 특선 시그니처 라떼 할인')" class="bg-white text-brand-700 font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow hover:bg-indigo-50 transition flex items-center gap-2">
+                                <i data-lucide="zap" class="w-4 h-4 text-amber-500 fill-amber-500"></i>
+                                이 미션으로 3초 만에 글 만들기
+                            </button>
+                            <button onclick="switchTab('generator')" class="bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm px-4 py-2.5 rounded-xl font-medium backdrop-blur-sm transition">
+                                직접 제안 작성
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- KPI 1 -->
+                    <div class="glass-card p-5 rounded-2xl flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">이번 달 SNS 방문 유입</span>
+                            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                                <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">3,420</span>
+                                <span class="text-xs font-bold text-emerald-600 flex items-center"><i data-lucide="arrow-up-right" class="w-3 h-3"></i>+18.4%</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">지난달 대비 530명 증가</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI 2 -->
+                    <div class="glass-card p-5 rounded-2xl flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">AI 생성 콘텐츠</span>
+                            <div class="w-8 h-8 rounded-xl bg-indigo-50 text-brand-600 flex items-center justify-center">
+                                <i data-lucide="sparkles" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">28 건</span>
+                                <span class="text-xs font-bold text-brand-600">이번 달 목표 93%</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">자동 생성 및 예약 발행 완료</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI 3 -->
+                    <div class="glass-card p-5 rounded-2xl flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">평균 마케팅 반응률</span>
+                            <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                                <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">8.7%</span>
+                                <span class="text-xs font-bold text-emerald-600 flex items-center"><i data-lucide="arrow-up-right" class="w-3 h-3"></i>+2.1%</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">동종 업계 평균 (4.2%) 대비 상위</p>
+                        </div>
+                    </div>
+
+                    <!-- KPI 4 -->
+                    <div class="glass-card p-5 rounded-2xl flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold text-slate-500">절감된 마케팅 대행비</span>
+                            <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                                <i data-lucide="coins" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-baseline gap-2">
+                                <span class="text-2xl font-bold text-slate-900">약 120만원</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 mt-1">외주 대행사 대비 시간·비용 절감</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Section: Chart & Recent Campaigns -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Left: Performance Chart (2 cols) -->
+                    <div class="glass-card rounded-2xl p-5 lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">주간 유입 및 반응 추이</h3>
+                                <p class="text-xs text-slate-400">AI 콘텐츠 발행 후 고객 유입 수 변화</p>
+                            </div>
+                            <select class="bg-slate-50 border border-slate-200 text-xs font-medium rounded-lg px-2.5 py-1.5 focus:outline-none">
+                                <option>최근 7일</option>
+                                <option>최근 30일</option>
+                            </select>
+                        </div>
+                        <div class="h-64 w-full">
+                            <canvas id="overviewChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Right: Quick Activity / Recent Campaigns (1 col) -->
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-bold text-slate-900 text-base">최근 진행 마케팅</h3>
+                            <button onclick="switchTab('calendar')" class="text-xs font-semibold text-brand-600 hover:underline">전체보기</button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <!-- Campaign Item 1 -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/70 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center shrink-0">
+                                        <i data-lucide="instagram" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-slate-800 truncate">주말 가을 한정 아인슈페너 할인</p>
+                                        <p class="text-[11px] text-slate-400">인스타그램 • 2시간 전 발행</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 shrink-0">도달 840</span>
+                            </div>
+
+                            <!-- Campaign Item 2 -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/70 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                                        <i data-lucide="search" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-slate-800 truncate">성수동 데이트 코스 카페 추천</p>
+                                        <p class="text-[11px] text-slate-400">네이버 블로그 • 어제 발행</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 shrink-0">조회 1.2k</span>
+                            </div>
+
+                            <!-- Campaign Item 3 -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-center justify-between hover:bg-slate-100/70 transition">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center shrink-0">
+                                        <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                                    </div>
+                                    <div class="truncate">
+                                        <p class="text-xs font-bold text-slate-800 truncate">단골 손님 감사 10% 쿠폰 발송</p>
+                                        <p class="text-[11px] text-slate-400">당근마켓 • 3일 전 발행</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-brand-600 bg-brand-50 px-2 py-0.5 rounded-md border border-brand-100 shrink-0">쿠폰 42명 사용</span>
+                            </div>
+                        </div>
+
+                        <!-- Review Quick Card -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <div class="bg-amber-50/70 border border-amber-200/60 rounded-xl p-3.5 flex items-center justify-between">
+                                <div class="flex items-center gap-2.5">
+                                    <span class="text-amber-500 font-bold text-lg">★ 4.9</span>
+                                    <div>
+                                        <p class="text-xs font-bold text-slate-800">미답변 고객 리뷰 3건</p>
+                                        <p class="text-[11px] text-slate-500">AI가 매장 정체성에 맞춰 답글 작성</p>
+                                    </div>
+                                </div>
+                                <button onclick="switchTab('review')" class="text-xs font-bold text-amber-700 hover:underline">답글 달기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. AI CONTENT GENERATOR STUDIO VIEW -->
+            <div id="view-generator" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- Left Controls Form (5 cols) -->
+                    <div class="lg:col-span-5 space-y-5">
+                        <div class="glass-card rounded-2xl p-5 space-y-5">
+                            <div class="border-b border-slate-100 pb-3">
+                                <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
+                                    <i data-lucide="sliders-horizontal" class="w-5 h-5 text-brand-600"></i>
+                                    마케팅 조건 설정
+                                </h3>
+                                <p class="text-xs text-slate-400">원하는 채널과 이벤트 주제를 선택하세요.</p>
+                            </div>
+
+                            <!-- Platform Selection -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">1. 타겟 플랫폼</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="selectPlatform(this, 'instagram')" class="platform-btn p-3 rounded-xl border-2 border-brand-600 bg-brand-50/50 text-slate-800 flex flex-col items-center gap-1.5 transition">
+                                        <i data-lucide="instagram" class="w-5 h-5 text-pink-600"></i>
+                                        <span class="text-xs font-bold">인스타그램</span>
+                                    </button>
+                                    <button onclick="selectPlatform(this, 'blog')" class="platform-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-600 flex flex-col items-center gap-1.5 transition">
+                                        <i data-lucide="file-text" class="w-5 h-5 text-emerald-600"></i>
+                                        <span class="text-xs font-medium">네이버 블로그</span>
+                                    </button>
+                                    <button onclick="selectPlatform(this, 'karrot')" class="platform-btn p-3 rounded-xl border border-slate-200 hover:border-slate-300 text-slate-600 flex flex-col items-center gap-1.5 transition">
+                                        <i data-lucide="shopping-bag" class="w-5 h-5 text-orange-500"></i>
+                                        <span class="text-xs font-medium">당근마켓</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Topic / Event Type -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">2. 홍보 주제 / 이벤트</label>
+                                <select id="gen-topic-select" onchange="updateTopicInput(this.value)" class="w-full bg-slate-50 border border-slate-200 text-xs font-medium rounded-xl p-3 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none mb-2">
+                                    <option value="비 오는 날 특선 라떼 할인">🌧️ 비 오는 날 특선 메뉴/음료 할인</option>
+                                    <option value="신메뉴 시그니처 크로플 출시">🥐 신메뉴 출시 (시그니처 디저트/메뉴)</option>
+                                    <option value="주말 방문 단골 고객 10% 쿠폰">🎟️ 주말 피크타임 쿠폰 이벤트</option>
+                                    <option value="가을 맞이 시즌 기획전">🍁 계절 맞이 시즌 감사 이벤트</option>
+                                    <option value="custom">✍️ 직접 작성하기</option>
+                                </select>
+                                <input id="gen-topic-input" type="text" value="비 오는 날 특선 라떼 할인" class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 text-slate-800 focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="예: 수제 딸기 라떼 출시 1+1 행사">
+                            </div>
+
+                            <!-- Key Mood / Tone -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 mb-2">3. 어조 (톤앤매너)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="tone" value="친근하고 다정한" checked class="peer hidden">
+                                        <div class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-600 peer-checked:border-brand-600 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition">
+                                            😊 친근하고 다정한
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="tone" value="위트있고 센스있는" class="peer hidden">
+                                        <div class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-600 peer-checked:border-brand-600 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition">
+                                            ⚡ 센스있고 위트있는
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="tone" value="전문적이고 신뢰감있는" class="peer hidden">
+                                        <div class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-600 peer-checked:border-brand-600 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition">
+                                            ☕ 전문적/고급스러운
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="tone" value="혜택을 강조하는" class="peer hidden">
+                                        <div class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-600 peer-checked:border-brand-600 peer-checked:bg-brand-50 peer-checked:text-brand-600 transition">
+                                            🔥 혜택 강조/긴박한
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Extra Features -->
+                            <div class="pt-2 border-t border-slate-100 space-y-2">
+                                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+                                    <input type="checkbox" id="gen-include-hashtags" checked class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                                    <span>인기 관련 해시태그 10개 자동 추출</span>
+                                </label>
+                                <label class="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+                                    <input type="checkbox" id="gen-include-image" checked class="rounded border-slate-300 text-brand-600 focus:ring-brand-500 w-4 h-4">
+                                    <span>AI 홍보용 배너 시안 함께 제작</span>
+                                </label>
+                            </div>
+
+                            <!-- Action Button -->
+                            <button id="generate-btn" onclick="generateContent()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-brand-500/25 flex items-center justify-center gap-2 transition active:scale-95">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                <span>AI 홍보 글 3초 만에 생성하기</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Right Result Output Preview (7 cols) -->
+                    <div class="lg:col-span-7">
+                        <div class="glass-card rounded-2xl p-6 h-full flex flex-col justify-between">
+                            
+                            <!-- Initial State Empty Placeholder -->
+                            <div id="gen-placeholder" class="py-16 text-center space-y-4 my-auto">
+                                <div class="w-16 h-16 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center mx-auto shadow-inner">
+                                    <i data-lucide="wand-2" class="w-8 h-8"></i>
+                                </div>
+                                <div class="max-w-xs mx-auto">
+                                    <h4 class="font-bold text-slate-800 text-base">원하는 마케팅 주제를 설정해주세요</h4>
+                                    <p class="text-xs text-slate-400 mt-1">좌측 옵션을 선택 후 생성 버튼을 누르면 인스타그램/블로그용 최적화 문구와 AI 배너가 만들어집니다.</p>
+                                </div>
+                            </div>
+
+                            <!-- Loading Spinner State -->
+                            <div id="gen-loading" class="hidden py-16 text-center space-y-4 my-auto">
+                                <div class="inline-block animate-spin text-brand-600">
+                                    <i data-lucide="loader-2" class="w-10 h-10"></i>
+                                </div>
+                                <p class="text-sm font-bold text-slate-700 animate-pulse">성수동 카페 맞춤 키워드로 문구와 배너 생성 중...</p>
+                                <p class="text-xs text-slate-400">SNS 최적화 알고리즘 기반 생성 중 (약 2초 소요)</p>
+                            </div>
+
+                            <!-- Generated Content Display Area -->
+                            <div id="gen-result" class="hidden space-y-5">
+                                
+                                <!-- Top Result Header -->
+                                <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                                    <div class="flex items-center gap-2">
+                                        <span id="res-platform-badge" class="bg-pink-100 text-pink-700 text-xs font-bold px-2.5 py-1 rounded-md">인스타그램용</span>
+                                        <span class="text-xs text-slate-400">생성 완료 • 바로 사용 가능</span>
+                                    </div>
+                                    <button onclick="generateContent()" class="text-xs text-slate-500 hover:text-brand-600 flex items-center gap-1 font-medium">
+                                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 재생성
+                                    </button>
+                                </div>
+
+                                <!-- Banner Image Preview Card -->
+                                <div class="relative bg-slate-900 rounded-xl overflow-hidden aspect-[16/9] shadow-md group">
+                                    <img id="res-banner-img" src="https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80" alt="AI Generated Marketing Banner" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition duration-500">
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-5 flex flex-col justify-end">
+                                        <span class="text-[10px] uppercase tracking-wider font-extrabold text-amber-300 mb-1">AI 생성 가상 배너 시안</span>
+                                        <h4 id="res-banner-title" class="text-white text-lg font-bold drop-shadow">비 오면 생각나는 달콤함, 성수 행복카페</h4>
+                                    </div>
+                                    <span class="absolute top-3 right-3 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm">AI 이미지</span>
+                                </div>
+
+                                <!-- Text Content Container -->
+                                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">헤드라인 (Catchy Headline)</p>
+                                        <p id="res-headline" class="text-base font-bold text-slate-900">🌧️ 비 오는 날엔, 따뜻한 카페라떼와 함께 마음까지 채우세요!</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">본문 문구 (Body Copy)</p>
+                                        <p id="res-body" class="text-xs text-slate-700 leading-relaxed whitespace-pre-line">
+창밖으로 빗소리가 운치 있게 들리는 오늘 같은 날 ☕
+성수 행복카페에서 비 오는 날 특별 혜택을 준비했습니다!
+
+오늘 매장을 방문하셔서 "비 오는 날 쿠폰"을 제시해주시면,
+모든 시그니처 음료 15% 할인 + 수제 쿠키 1개 증정 🍪
+
+빗길 조심히 오시고, 따스한 온기를 전해드릴게요 :)
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1">추천 해시태그</p>
+                                        <p id="res-hashtags" class="text-xs text-brand-600 font-medium">#성수동카페 #비오는날데이트 #성수카페추천 #카페라떼맛집 #성수동디저트 #단골이벤트 #비오는날카페 #성수행복카페 #카페이벤트 #감성카페</p>
+                                    </div>
+                                </div>
+
+                                <!-- Copy & Schedule Action Buttons -->
+                                <div class="flex items-center gap-3 pt-2">
+                                    <button onclick="copyGeneratedText()" class="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs py-3 rounded-xl shadow flex items-center justify-center gap-2 transition active:scale-95">
+                                        <i data-lucide="copy" class="w-4 h-4"></i> 전체 문구 복사하기
+                                    </button>
+                                    <button onclick="scheduleGeneratedPost()" class="flex-1 bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs py-3 rounded-xl shadow flex items-center justify-center gap-2 transition active:scale-95">
+                                        <i data-lucide="calendar-plus" class="w-4 h-4"></i> 캘린더에 예약 등록
+                                    </button>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- 3. MARKETING CALENDAR VIEW -->
+            <div id="view-calendar" class="hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg">11월 마케팅 & 프로모션 캘린더</h3>
+                            <p class="text-xs text-slate-400">자동 예약 발행 콘텐츠와 추천 이벤트 일정입니다.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium bg-slate-100 px-3 py-1.5 rounded-lg">
+                                <span class="w-2.5 h-2.5 rounded-full bg-brand-500"></span> 예약 발행
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 text-xs text-slate-600 font-medium bg-slate-100 px-3 py-1.5 rounded-lg">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> AI 추천 시즌 이슈
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Calendar Grid Header -->
+                    <div class="grid grid-cols-7 gap-2 text-center text-xs font-bold text-slate-400 mb-2">
+                        <span class="text-rose-500">일</span>
+                        <span>월</span>
+                        <span>화</span>
+                        <span>수</span>
+                        <span>목</span>
+                        <span>금</span>
+                        <span class="text-indigo-500">토</span>
+                    </div>
+
+                    <!-- Calendar Days Grid (Mock November) -->
+                    <div class="grid grid-cols-7 gap-2">
+                        <!-- Empty slots for previous month -->
+                        <div class="h-28 sm:h-32 bg-slate-50/50 rounded-xl p-2 opacity-40 text-xs">27</div>
+                        <div class="h-28 sm:h-32 bg-slate-50/50 rounded-xl p-2 opacity-40 text-xs">28</div>
+                        <div class="h-28 sm:h-32 bg-slate-50/50 rounded-xl p-2 opacity-40 text-xs">29</div>
+                        <div class="h-28 sm:h-32 bg-slate-50/50 rounded-xl p-2 opacity-40 text-xs">30</div>
+                        <div class="h-28 sm:h-32 bg-slate-50/50 rounded-xl p-2 opacity-40 text-xs">31</div>
+                        
+                        <!-- Nov 1 ~ 30 -->
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">1</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-indigo-600">2</span>
+                        </div>
+
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">3</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">4</span>
+                            <div class="bg-indigo-50 border border-indigo-200 p-1.5 rounded-lg text-[10px] text-brand-700 font-bold truncate">
+                                📸 신메뉴 촬영 포스팅
+                            </div>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">5</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">6</span>
+                            <div class="bg-amber-50 border border-amber-200 p-1.5 rounded-lg text-[10px] text-amber-800 font-bold truncate">
+                                🌧️ 비 예보 특선 메뉴
+                            </div>
+                        </div>
+
+                        <!-- Today highlight -->
+                        <div class="h-28 sm:h-32 bg-brand-50/40 border-2 border-brand-500 rounded-xl p-2 text-xs flex flex-col justify-between relative">
+                            <div class="flex items-center justify-between">
+                                <span class="font-extrabold text-brand-600">7 (오늘)</span>
+                                <span class="w-2 h-2 rounded-full bg-brand-600"></span>
+                            </div>
+                            <div class="bg-brand-600 text-white p-1.5 rounded-lg text-[10px] font-bold truncate shadow-sm">
+                                ☕ 비 오는 날 라떼 15%
+                            </div>
+                        </div>
+
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-indigo-600">8</span>
+                            <div class="bg-indigo-50 border border-indigo-200 p-1.5 rounded-lg text-[10px] text-brand-700 font-bold truncate">
+                                🎟️ 주말 피크타임 쿠폰
+                            </div>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-rose-500">9</span>
+                        </div>
+
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">10</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">11</span>
+                            <div class="bg-amber-100 border border-amber-300 p-1.5 rounded-lg text-[10px] text-amber-900 font-bold truncate">
+                                🍫 빼빼로데이 시즌
+                            </div>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">12</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">13</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-slate-700">14</span>
+                        </div>
+                        <div class="h-28 sm:h-32 bg-white border border-slate-200 rounded-xl p-2 text-xs flex flex-col justify-between">
+                            <span class="font-bold text-indigo-600">15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. AI CUSTOMER REVIEW REPLY HELPER VIEW -->
+            <div id="view-review" class="hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6 space-y-6">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-lg flex items-center gap-2">
+                                <i data-lucide="message-square-quote" class="w-5 h-5 text-brand-600"></i>
+                                고객 리뷰 AI 자동 답글 도우미
+                            </h3>
+                            <p class="text-xs text-slate-400">네이버 지도, 카카오맵, 배달의민족 리뷰에 친근하고 정성스러운 답글을 1초 만에 작성합니다.</p>
+                        </div>
+                        <span class="bg-brand-50 text-brand-700 border border-brand-100 text-xs font-bold px-3 py-1.5 rounded-xl">
+                            미답변 리뷰 3건 남음
+                        </span>
+                    </div>
+
+                    <!-- Review Cards List -->
+                    <div class="space-y-4">
+                        
+                        <!-- Review Item 1 (5 stars) -->
+                        <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 font-bold text-xs flex items-center justify-center">네이버</span>
+                                    <div>
+                                        <div class="flex items-center gap-1">
+                                            <p class="text-xs font-bold text-slate-800">민지** 님</p>
+                                            <span class="text-amber-400 text-xs">★★★★★</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-400">방문일: 어제 • 시그니처 아인슈페너 & 크로플 구매</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-400">12시간 전</span>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed bg-white p-3 rounded-lg border border-slate-100">
+                                "비 오는 날 지나가다 분위기가 좋아서 들렀는데 아인슈페너 크림이 미쳤어요!! 쿠키도 서비스로 주셔서 너무 감사했습니다. 사장님도 친절하셔서 단골 될 것 같아요 👍"
+                            </p>
+                            <div class="pt-2 flex items-center justify-between">
+                                <button onclick="generateReviewReply(this, 'positive', '민지')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2 rounded-lg flex items-center gap-1.5 transition">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI 감동 답글 생성하기
+                                </button>
+                            </div>
+                            <!-- Output Reply Box (Hidden by default) -->
+                            <div class="reply-box hidden pt-3 border-t border-slate-200/80">
+                                <div class="bg-brand-50/60 border border-brand-200 rounded-lg p-3.5 space-y-2">
+                                    <div class="flex items-center justify-between text-xs font-bold text-brand-700">
+                                        <span>AI가 추천하는 정성스러운 답글</span>
+                                        <span class="text-[10px] text-brand-500 font-normal">수정 가능</span>
+                                    </div>
+                                    <textarea class="w-full bg-white border border-brand-200 rounded-md p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500" rows="3">안녕하세요 민지님! 성수 행복카페입니다 ☕ 비 오는 날 저희 매장을 찾아주신 것만으로도 감사한데, 이렇게 따뜻한 후기까지 남겨주셔서 마음이 뭉클해집니다 :) 아인슈페너 크림과 수제 쿠키가 입맛에 맞으셨다니 정말 기쁩니다! 다음에도 따뜻한 온기 가득 담아 맞아드릴게요. 또 놀러 오세요! ❤️</textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button onclick="submitReply(this)" class="bg-slate-900 text-white font-bold text-xs px-3 py-1.5 rounded-md hover:bg-slate-800">답글 바로 등록</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Item 2 (2 stars - Negative Handling) -->
+                        <div class="p-5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-800 font-bold text-xs flex items-center justify-center">카카오</span>
+                                    <div>
+                                        <div class="flex items-center gap-1">
+                                            <p class="text-xs font-bold text-slate-800">익명 손님</p>
+                                            <span class="text-amber-400 text-xs">★★☆☆☆</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-400">방문일: 2일 전 • 라떼 2잔 테이크아웃</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs text-slate-400">2일 전</span>
+                            </div>
+                            <p class="text-xs text-slate-700 leading-relaxed bg-white p-3 rounded-lg border border-slate-100">
+                                "주말 점심에 사람이 너무 많아서 음료 나오는 데 20분 넘게 기다렸어요. 라떼도 미지근해서 좀 아쉬웠습니다."
+                            </p>
+                            <div class="pt-2 flex items-center justify-between">
+                                <button onclick="generateReviewReply(this, 'negative', '고객')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2 rounded-lg flex items-center gap-1.5 transition">
+                                    <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> AI 사과 & 개선 모범 답글 생성
+                                </button>
+                            </div>
+                            <!-- Output Reply Box -->
+                            <div class="reply-box hidden pt-3 border-t border-slate-200/80">
+                                <div class="bg-brand-50/60 border border-brand-200 rounded-lg p-3.5 space-y-2">
+                                    <div class="flex items-center justify-between text-xs font-bold text-brand-700">
+                                        <span>AI가 추천하는 정중한 개선 답글</span>
+                                    </div>
+                                    <textarea class="w-full bg-white border border-brand-200 rounded-md p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-brand-500" rows="3">안녕하세요 고객님, 성수 행복카페 대표입니다. 소중한 시간에 방문해주셨음에도 주말 대기 시간과 음료 온도 관리 미흡으로 불편을 드려 진심으로 사과드립니다. 해당 피드백을 바탕으로 피크타임 레시피 재점검 및 제조 프로세스를 개선하였습니다. 다음 방문 시 더 완벽한 맛과 서비스를 제공할 수 있도록 최선을 다하겠습니다. 죄송하고 감사드립니다.</textarea>
+                                    <div class="flex justify-end gap-2">
+                                        <button onclick="submitReply(this)" class="bg-slate-900 text-white font-bold text-xs px-3 py-1.5 rounded-md hover:bg-slate-800">답글 바로 등록</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. ANALYTICS VIEW -->
+            <div id="view-analytics" class="hidden space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base">마케팅 채널별 유입 비중</h3>
+                        <div class="h-64 flex items-center justify-center">
+                            <canvas id="channelDoughnutChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-2xl p-5 space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base">AI 콘텐츠 포스팅 반응 비교</h3>
+                        <div class="space-y-4 pt-2">
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>인스타그램 (카드뉴스/릴스)</span>
+                                    <span class="text-brand-600">전환율 11.2%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                                    <div class="bg-pink-500 h-full rounded-full" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>당근마켓 (지역 단골 쿠폰)</span>
+                                    <span class="text-brand-600">전환율 8.7%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                                    <div class="bg-orange-500 h-full rounded-full" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold mb-1">
+                                    <span>네이버 블로그 (지역 검색 키워드)</span>
+                                    <span class="text-brand-600">전환율 6.4%</span>
+                                </div>
+                                <div class="w-full bg-slate-100 h-3 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-full rounded-full" style="width: 52%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Chart Instance Management
+        let overviewChartInstance = null;
+        let doughnutChartInstance = null;
+
+        window.onload = function() {
+            initOverviewChart();
+        };
+
+        // Navigation Tab Switching Logic
+        function switchTab(tabName) {
+            // Hide all views
+            const views = ['dashboard', 'generator', 'calendar', 'review', 'analytics'];
+            views.forEach(v => {
+                document.getElementById(`view-${v}`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${v}`);
+                if (navBtn) {
+                    navBtn.classList.remove('bg-brand-50', 'text-brand-600', 'font-semibold');
+                    navBtn.classList.add('text-slate-600', 'font-medium');
+                }
+            });
+
+            // Show selected view
+            const selectedView = document.getElementById(`view-${tabName}`);
+            if (selectedView) {
+                selectedView.classList.remove('hidden');
+            }
+
+            // Highlight Active Nav
+            const activeNav = document.getElementById(`nav-${tabName}`);
+            if (activeNav) {
+                activeNav.classList.add('bg-brand-50', 'text-brand-600', 'font-semibold');
+                activeNav.classList.remove('text-slate-600', 'font-medium');
+            }
+
+            // Page Title Update
+            const titles = {
+                'dashboard': '대시보드 개요',
+                'generator': 'AI 콘텐츠 스튜디오',
+                'calendar': '마케팅 캘린더',
+                'review': 'AI 고객 리뷰 답글 도우미',
+                'analytics': '성과 분석'
+            };
+            document.getElementById('page-title').innerText = titles[tabName] || '대시보드';
+
+            // Lazy Load Chart for Analytics
+            if (tabName === 'analytics' && !doughnutChartInstance) {
+                initDoughnutChart();
+            }
+        }
+
+        // Quick Mission Trigger
+        function quickGenerate(topicText) {
+            switchTab('generator');
+            document.getElementById('gen-topic-input').value = topicText;
+            generateContent();
+        }
+
+        // Platform Selector
+        let currentPlatform = 'instagram';
+        function selectPlatform(btn, platform) {
+            document.querySelectorAll('.platform-btn').forEach(b => {
+                b.classList.remove('border-2', 'border-brand-600', 'bg-brand-50/50');
+                b.classList.add('border-slate-200');
+            });
+            btn.classList.remove('border-slate-200');
+            btn.classList.add('border-2', 'border-brand-600', 'bg-brand-50/50');
+            currentPlatform = platform;
+        }
+
+        // Topic Select Sync
+        function updateTopicInput(val) {
+            const input = document.getElementById('gen-topic-input');
+            if (val !== 'custom') {
+                input.value = val;
+            } else {
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        // AI Content Generator Engine Simulation
+        function generateContent() {
+            const placeholder = document.getElementById('gen-placeholder');
+            const loading = document.getElementById('gen-loading');
+            const result = document.getElementById('gen-result');
+
+            placeholder.classList.add('hidden');
+            result.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            const topic = document.getElementById('gen-topic-input').value || '비 오는 날 카페 할인';
+            const tone = document.querySelector('input[name="tone"]:checked').value;
+
+            setTimeout(() => {
+                loading.classList.add('hidden');
+                result.classList.remove('hidden');
+
+                // Dynamic UI updates based on selection
+                const platformBadge = document.getElementById('res-platform-badge');
+                if (currentPlatform === 'instagram') {
+                    platformBadge.innerText = '인스타그램 피드용';
+                    platformBadge.className = 'bg-pink-100 text-pink-700 text-xs font-bold px-2.5 py-1 rounded-md';
+                } else if (currentPlatform === 'blog') {
+                    platformBadge.innerText = '네이버 블로그용';
+                    platformBadge.className = 'bg-emerald-100 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-md';
+                } else {
+                    platformBadge.innerText = '당근마켓 소식용';
+                    platformBadge.className = 'bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-md';
+                }
+
+                document.getElementById('res-banner-title').innerText = `성수 행복카페: ${topic}`;
+                document.getElementById('res-headline').innerText = `✨ ${tone} 느낌으로 만든 "${topic}" 핵심 포스팅!`;
+                document.getElementById('res-body').innerText = 
+`안녕하세요, 성수동 아늑한 감성 공간 '성수 행복카페'입니다 ☕
+
+${topic} 소식을 기다려주신 단골 고객님들을 위해 준비했습니다!
+${tone} 분위기와 함께 매장에서 편안하고 따스한 시간을 즐겨보세요.
+
+📍 위치: 성수역 3번 출구 도보 3분
+⏰ 이벤트 기간: 이번 주 한정 진행!
+🎁 혜택: 매장 방문 시 AI 추천 쿠폰 즉시 적용 가능!
+
+빗길/주말 걸음 조심히 오시고, 행복한 하루 보내세요 💛`;
+
+                document.getElementById('res-hashtags').innerText = `#성수동카페 #성수카페추천 #${topic.replace(/\s+/g, '')} #성수행복카페 #카페데이트 #성수동핫플 #감성카페 #단골혜택`;
+
+                showToast('✨ AI 마케팅 문구 작성이 완료되었습니다!');
+            }, 1200);
+        }
+
+        // Copy Text Function
+        function copyGeneratedText() {
+            const headline = document.getElementById('res-headline').innerText;
+            const body = document.getElementById('res-body').innerText;
+            const hashtags = document.getElementById('res-hashtags').innerText;
+
+            const fullText = `${headline}\n\n${body}\n\n${hashtags}`;
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = fullText;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            showToast('📋 전체 글이 클립보드에 복사되었습니다!');
+        }
+
+        // Schedule Post Action
+        function scheduleGeneratedPost() {
+            showToast('📅 11월 8일 마케팅 캘린더에 자동 예약되었습니다!');
+            setTimeout(() => {
+                switchTab('calendar');
+            }, 1000);
+        }
+
+        // AI Review Reply Generation
+        function generateReviewReply(btn, type, name) {
+            const parent = btn.closest('.p-5');
+            const replyBox = parent.querySelector('.reply-box');
+            replyBox.classList.remove('hidden');
+            btn.innerHTML = `<i data-lucide="check" class="w-3.5 h-3.5"></i> 답글 생성 완료`;
+            btn.classList.replace('bg-brand-600', 'bg-slate-200');
+            btn.classList.replace('text-white', 'text-slate-700');
+            lucide.createIcons();
+            showToast(`🤖 ${name} 님의 리뷰에 맞춘 AI 답글이 추천되었습니다.`);
+        }
+
+        function submitReply(btn) {
+            const card = btn.closest('.p-5');
+            card.style.opacity = '0.5';
+            btn.innerText = '등록 완료';
+            btn.disabled = true;
+            showToast('✅ 답글이 등록되었습니다!');
+        }
+
+        // Toast Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-message');
+            msgEl.innerText = message;
+
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-[-100px]', 'opacity-0', 'pointer-events-none');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Chart 1: Overview Line Chart
+        function initOverviewChart() {
+            const ctx = document.getElementById('overviewChart').getContext('2d');
+            overviewChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['월', '화', '수', '목', '금', '토', '일'],
+                    datasets: [
+                        {
+                            label: 'AI 마케팅 적용 후 방문자 수',
+                            data: [320, 410, 390, 580, 720, 890, 940],
+                            borderColor: '#4F46E5',
+                            backgroundColor: 'rgba(79, 70, 229, 0.08)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointBackgroundColor: '#4F46E5',
+                            pointRadius: 4
+                        },
+                        {
+                            label: '적용 전 평균 방문자',
+                            data: [250, 270, 260, 280, 310, 420, 450],
+                            borderColor: '#94A3B8',
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: true, position: 'top', labels: { boxWidth: 12, font: { family: 'Noto Sans KR', size: 11 } } }
+                    },
+                    scales: {
+                        y: { grid: { color: '#F1F5F9' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        // Chart 2: Analytics Doughnut Chart
+        function initDoughnutChart() {
+            const ctx = document.getElementById('channelDoughnutChart').getContext('2d');
+            doughnutChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['인스타그램', '당근마켓', '네이버 블로그', '기타/직접'],
+                    datasets: [{
+                        data: [45, 30, 18, 7],
+                        backgroundColor: ['#EC4899', '#F97316', '#10B981', '#94A3B8'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { font: { family: 'Noto Sans KR', size: 11 } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+    </script>
+</body>
+</html>
