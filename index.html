@@ -1,1080 +1,595 @@
 <!DOCTYPE html>
-<html lang="ko" class="scroll-smooth">
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>마케팅온 AI (MarketingOn AI) - 직접 하기 어렵던 매장 마케팅, 쉽게 끝내세요!</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Pretendard & Inter Fonts -->
-    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
-
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Pretendard', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'Roboto', 'sans-serif'],
-                        display: ['Inter', 'Pretendard', 'sans-serif'],
-                    },
-                    colors: {
-                        mblue: {
-                            50: '#F3F5FD',
-                            100: '#E5EAFA',
-                            200: '#CBD5F6',
-                            400: '#7890F7',
-                            500: '#5B73F2',
-                            600: '#4B6BFF',
-                            700: '#3B5BDB',
-                            800: '#2F49B8',
-                        }
-                    },
-                    boxShadow: {
-                        'soft': '0 10px 30px -5px rgba(59, 91, 219, 0.08)',
-                        'card': '0 12px 32px -4px rgba(15, 23, 42, 0.06)',
-                        'phone': '0 25px 50px -12px rgba(23, 37, 84, 0.28)',
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-            word-break: keep-all;
-        }
-        .hero-vivid-bg {
-            background: linear-gradient(135deg, #5271FF 0%, #4B6BFF 50%, #3E5CE8 100%);
-        }
-        .orb-pink-purple {
-            background: linear-gradient(135deg, #F6A6FF 0%, #A882FF 55%, #5B73F2 100%);
-        }
-        .orb-blue-glass {
-            background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(120,144,247,0.15) 100%);
-        }
-        .cta-vivid-bg {
-            background: linear-gradient(125deg, #5673FA 0%, #4966F5 55%, #3D58E0 100%);
-        }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        @keyframes floatSlow {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-6px); }
-        }
-        .animate-float-slow {
-            animation: floatSlow 4s ease-in-out infinite;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>마케팅온 AI (MarketingOn AI) - 소상공인을 위한 AI 셀프 마케팅 솔루션</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <!-- Supabase SDK 및 클라이언트 연동 -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./supabase-client.js"></script>
+  <style>
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+      color: #191F28;
+      scroll-behavior: smooth;
+    }
+    .hero-gradient {
+      background: linear-gradient(135deg, #4B6BFF 0%, #5B73F2 55%, #3B5BDB 100%);
+    }
+    .lavender-bg {
+      background-color: #F3F5FD;
+    }
+    .review-gradient {
+      background: linear-gradient(180deg, #526DF5 0%, #4661E8 100%);
+    }
+    .cta-gradient {
+      background: linear-gradient(120deg, #4B6BFF 0%, #5C7CFA 100%);
+    }
+    .phone-shadow {
+      box-shadow: 0 24px 48px -12px rgba(23, 37, 108, 0.28);
+    }
+    .card-shadow {
+      box-shadow: 0 10px 30px rgba(30, 41, 59, 0.06);
+    }
+  </style>
 </head>
-<body class="bg-white text-slate-900 antialiased selection:bg-mblue-600 selection:text-white">
+<body class="bg-white antialiased">
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 pointer-events-none">
-        <div class="w-6 h-6 rounded-full bg-mblue-500/30 text-mblue-200 flex items-center justify-center shrink-0">
-            <i data-lucide="check" class="w-4 h-4"></i>
-        </div>
-        <span id="toast-msg" class="text-sm font-medium">완료되었습니다!</span>
+  <!-- 1. 상단 네비게이션 -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-100">
+    <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
+      <a href="index.html" class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-[#4B6BFF] flex items-center justify-center text-white font-bold text-lg">M</div>
+        <span class="font-extrabold text-xl tracking-tight text-slate-900">마케팅온 <span class="text-[#4B6BFF]">AI</span></span>
+      </a>
+      <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+        <a href="#intro" class="hover:text-[#4B6BFF] transition">서비스 소개</a>
+        <a href="#coaching" class="hover:text-[#4B6BFF] transition">AI 맞춤 코칭</a>
+        <a href="#reviews" class="hover:text-[#4B6BFF] transition">사장님 후기</a>
+        <a href="#howto" class="hover:text-[#4B6BFF] transition">이용 방법</a>
+        <a href="#categories" class="hover:text-[#4B6BFF] transition">업종별 추천</a>
+      </nav>
+      <div class="flex items-center gap-2.5">
+        <button onclick="openLeadModal()" class="hidden sm:inline-flex px-4 py-2 text-sm font-semibold text-[#4B6BFF] bg-blue-50 hover:bg-blue-100 rounded-full transition">
+          무료 체험 신청
+        </button>
+        <a href="dashboard.html" class="px-4 py-2 text-sm font-semibold text-white bg-[#4B6BFF] hover:bg-[#3B5BDB] rounded-full shadow-sm transition">
+          대시보드 바로가기
+        </a>
+      </div>
     </div>
+  </header>
 
-    <!-- =================================================================
-         1. 상단 네비게이션 (GNB - 투명 블루 위 화이트 로고 & 대시보드 연결 버튼)
-    ================================================================== -->
-    <header id="gnb" class="fixed top-0 inset-x-0 z-40 transition-all duration-300 bg-transparent text-white">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-[72px] flex items-center justify-between">
-            <!-- 좌측 로고 & 메뉴 -->
-            <div class="flex items-center gap-8 lg:gap-10">
-                <a href="index.html" class="flex items-center gap-2 group">
-                    <span class="font-display font-extrabold text-xl tracking-tight">마케팅온</span>
-                    <span id="gnb-badge" class="text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30 transition">AI</span>
-                </a>
+  <!-- 2. 히어로 섹션 (비비드 블루 그라데이션 + 듀얼 스마트폰 UI 목업) -->
+  <section class="hero-gradient relative overflow-hidden pt-16 pb-20 md:pt-24 md:pb-28 text-white">
+    <div class="absolute -top-20 -left-20 w-72 h-72 rounded-full bg-white/10 blur-2xl pointer-events-none"></div>
+    <div class="absolute bottom-10 right-10 w-80 h-80 rounded-full bg-indigo-300/20 blur-3xl pointer-events-none"></div>
 
-                <nav class="hidden md:flex items-center gap-7 text-[14px] font-medium opacity-95">
-                    <a href="#about" class="hover:opacity-100 hover:underline underline-offset-8 transition">서비스 소개</a>
-                    <a href="#coaching" class="hover:opacity-100 hover:underline underline-offset-8 transition">AI 코칭</a>
-                    <a href="#reviews" class="hover:opacity-100 hover:underline underline-offset-8 transition">사장님 후기</a>
-                    <a href="#how-to-use" class="hover:opacity-100 hover:underline underline-offset-8 transition">이용 방법</a>
-                    <a href="#categories" class="hover:opacity-100 hover:underline underline-offset-8 transition">업종별 추천</a>
-                </nav>
-            </div>
+    <div class="max-w-6xl mx-auto px-5 grid md:grid-cols-12 gap-12 items-center relative z-10">
+      <!-- 좌측 카피 -->
+      <div class="md:col-span-6 space-y-6 text-center md:text-left">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/15 text-xs font-semibold tracking-wide backdrop-blur-sm">
+          ✨ 소상공인 매출 성장을 위한 올인원 AI 마케터
+        </span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight tracking-tight">
+          혼자 하기 막막하던<br />
+          매장 홍보, <span class="text-amber-300">마케팅온</span>에서<br />
+          쉽게 시작하세요!
+        </h1>
+        <p class="text-blue-100 text-base sm:text-lg leading-relaxed max-w-lg mx-auto md:mx-0">
+          비싼 마케팅 대행사 없이도 클릭 몇 번이면 끝.<br />
+          인스타그램·블로그·당근마켓 홍보글부터 고객 리뷰 답글까지 AI가 3초 만에 완성합니다.
+        </p>
 
-            <!-- 우측 대시보드 이동 알약형(Pill) 버튼 2개 -->
-            <div class="flex items-center gap-2.5">
-                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" id="gnb-btn-sub" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-white text-mblue-700 hover:bg-mblue-50 shadow-sm transition">
-                    <i data-lucide="layout-dashboard" class="w-3.5 h-3.5"></i> 대시보드 바로가기
-                </a>
-                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" id="gnb-btn-main" class="inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/35 backdrop-blur-sm transition">
-                    무료로 시작하기
-                </a>
-                <button type="button" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl hover:bg-white/10" aria-label="메뉴 열기">
-                    <i data-lucide="menu" class="w-5 h-5"></i>
-                </button>
-            </div>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center md:justify-start pt-2">
+          <a href="dashboard.html" class="px-7 py-4 bg-white text-[#4B6BFF] font-bold rounded-xl shadow-lg hover:bg-blue-50 transition text-center">
+            🚀 지금 대시보드 실행하기
+          </a>
+          <button onclick="openLeadModal()" class="px-7 py-4 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-xl border border-white/30 backdrop-blur-sm transition">
+            1:1 맞춤 도입 문의
+          </button>
         </div>
 
-        <!-- 모바일 드롭다운 메뉴 -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white text-slate-800 border-b border-slate-200 px-5 py-4 space-y-2 shadow-xl">
-            <a href="#about" onclick="toggleMobileMenu()" class="block py-2 text-sm font-semibold hover:text-mblue-600">서비스 소개</a>
-            <a href="#coaching" onclick="toggleMobileMenu()" class="block py-2 text-sm font-semibold hover:text-mblue-600">AI 코칭</a>
-            <a href="#reviews" onclick="toggleMobileMenu()" class="block py-2 text-sm font-semibold hover:text-mblue-600">사장님 후기</a>
-            <a href="#how-to-use" onclick="toggleMobileMenu()" class="block py-2 text-sm font-semibold hover:text-mblue-600">이용 방법</a>
-            <a href="#categories" onclick="toggleMobileMenu()" class="block py-2 text-sm font-semibold hover:text-mblue-600">업종별 추천</a>
-            <div class="pt-2 border-t border-slate-100">
-                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="w-full inline-flex items-center justify-center gap-2 py-3 rounded-xl bg-mblue-600 text-white text-sm font-extrabold">
-                    AI 마케팅 대시보드 열기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                </a>
-            </div>
+        <div class="pt-4 flex items-center justify-center md:justify-start gap-6 text-xs text-blue-100">
+          <div class="flex items-center gap-1.5">✅ 별도 설치 없는 웹 솔루션</div>
+          <div class="flex items-center gap-1.5">✅ 업종별 특화 AI 카피 엔진</div>
         </div>
-    </header>
+      </div>
 
-    <!-- =================================================================
-         2. 섹션 1: 히어로 섹션 (비비드 블루 그라데이션 + 2개 스마트폰 UI 목업)
-    ================================================================== -->
-    <section class="hero-vivid-bg pt-28 pb-16 sm:pt-36 sm:pb-0 text-white relative overflow-hidden">
-        <!-- 배경 장식 오브제 -->
-        <div class="w-36 h-36 sm:w-44 sm:h-44 rounded-full orb-pink-purple opacity-85 absolute top-20 left-[22%] sm:left-[26%] blur-[1px] pointer-events-none"></div>
-        <div class="w-40 h-40 sm:w-52 sm:h-52 rounded-full orb-blue-glass opacity-60 absolute top-1/2 -right-12 sm:right-6 pointer-events-none"></div>
-
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-6 items-center">
-                
-                <!-- 좌측 타이틀 & 설명 & 대시보드 바로가기 카드 2개 -->
-                <div class="lg:col-span-6 space-y-6 text-center lg:text-left pb-4 sm:pb-20">
-                    <h1 class="text-[30px] sm:text-[42px] lg:text-[44px] font-extrabold tracking-tight leading-[1.28]">
-                        직접 하기 어렵던<br>
-                        매장 마케팅, 마케팅온 AI에서<br>
-                        쉽게 끝내세요!
-                    </h1>
-
-                    <p class="text-sm sm:text-[15px] text-white/85 leading-relaxed max-w-md mx-auto lg:mx-0 font-normal">
-                        업종과 키워드만 고르면 인스타그램, 블로그, 당근마켓 홍보글부터 배너 시안, 고객 리뷰 답글까지 <strong>3초 만에 자동 완성</strong>됩니다.<br>
-                        <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="inline-flex items-center gap-1 mt-2 text-white font-bold underline decoration-white/50 underline-offset-4 hover:text-amber-200 transition">
-                            지금 AI 마케팅 대시보드 바로 열기 >
-                        </a>
-                    </p>
-
-                    <!-- 하단 바로가기 액션 카드 2개 -->
-                    <div class="pt-2 flex items-center justify-center lg:justify-start gap-3.5">
-                        <!-- 카드 1: 3초 AI 문구 체험 -->
-                        <a href="#how-to-use" class="w-32 sm:w-36 bg-white text-slate-800 rounded-2xl p-3.5 shadow-lg hover:-translate-y-1 transition flex flex-col items-center text-center group">
-                            <div class="w-14 h-14 rounded-xl bg-mblue-50 text-mblue-600 flex items-center justify-center mb-2.5 group-hover:bg-mblue-600 group-hover:text-white transition">
-                                <i data-lucide="wand-2" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-[11px] font-extrabold text-slate-800">AI 홍보글 체험</span>
-                            <span class="text-[10px] text-slate-400 mt-0.5">가입 없이 즉시 생성</span>
-                        </a>
-
-                        <!-- 카드 2: 실제 대시보드(dashboard.html) 이동 -->
-                        <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="w-32 sm:w-36 bg-white text-slate-800 rounded-2xl p-3.5 shadow-lg hover:-translate-y-1 transition flex flex-col items-center text-center group">
-                            <div class="w-14 h-14 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-2.5 group-hover:bg-indigo-600 group-hover:text-white transition">
-                                <i data-lucide="layout-dashboard" class="w-7 h-7"></i>
-                            </div>
-                            <span class="text-[11px] font-extrabold text-slate-800">대시보드 실행</span>
-                            <span class="text-[10px] text-mblue-600 font-bold mt-0.5">바로 시작하기 →</span>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 우측: 2개의 스마트폰 UI 목업 -->
-                <div class="lg:col-span-6 flex items-end justify-center gap-4 sm:gap-6 pt-2">
-                    
-                    <!-- 1번 목업: 매장 프로필 & AI 마케팅 성과 -->
-                    <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="w-[210px] sm:w-[240px] bg-white text-slate-800 rounded-t-[32px] border-[6px] border-b-0 border-slate-900/10 shadow-phone overflow-hidden shrink-0 hover:-translate-y-1 transition block">
-                        <div class="bg-mblue-600 text-white p-4 text-center space-y-2">
-                            <div class="w-10 h-1 bg-white/30 rounded-full mx-auto mb-2"></div>
-                            <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm mx-auto flex items-center justify-center text-2xl border border-white/30">
-                                ☕
-                            </div>
-                            <div>
-                                <p class="text-xs font-extrabold">성수 행복카페</p>
-                                <p class="text-[10px] text-white/80">카페·디저트 | AI 마케팅 연동중</p>
-                            </div>
-                            <div class="inline-block bg-white text-mblue-600 text-[10px] font-extrabold px-3 py-1 rounded-full shadow-sm">
-                                오늘의 추천 미션 도착 ✨
-                            </div>
-                        </div>
-                        <div class="p-4 space-y-3 bg-white">
-                            <div class="flex items-center justify-between text-[11px]">
-                                <span class="font-bold text-slate-700">이번 달 SNS 유입</span>
-                                <span class="font-extrabold text-mblue-600">+42.8% ↑</span>
-                            </div>
-                            <div class="flex items-center gap-1 text-mblue-600 text-xs font-bold">
-                                <span>★★★★★</span>
-                                <span class="text-slate-400 text-[10px] font-normal">리뷰 답글 100%</span>
-                            </div>
-                            <div class="bg-mblue-50 rounded-xl p-2.5 text-[10px] text-slate-600 leading-relaxed">
-                                "비 오는 오후, 따뜻한 수제 바닐라 라떼 15% 할인 쿠폰을 발행해 보세요!"
-                            </div>
-                        </div>
-                    </a>
-
-                    <!-- 2번 목업: AI 홍보글 & 리뷰 답글 채팅형 UI -->
-                    <div class="hidden sm:block w-[240px] bg-slate-50 text-slate-800 rounded-[32px] border-[6px] border-slate-900/10 shadow-phone overflow-hidden mb-10 shrink-0">
-                        <div class="bg-white px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                            <span class="text-[11px] font-extrabold text-slate-800">마케팅온 AI 비서</span>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        </div>
-                        <div class="p-3.5 space-y-2.5 text-[10px] leading-relaxed">
-                            <div class="bg-mblue-600 text-white p-2.5 rounded-2xl rounded-tr-sm ml-5 shadow-sm">
-                                주말에 신메뉴 크로플 홍보할 인스타 글 좀 써줘!
-                            </div>
-                            <div class="bg-white border border-slate-200/80 text-slate-700 p-2.5 rounded-2xl rounded-tl-sm mr-3 shadow-sm space-y-1.5">
-                                <p class="font-bold text-mblue-600">✨ 인스타 추천 문구 완성!</p>
-                                <p>겉바속촉 수제 크로플과 진한 아인슈페너의 만남 🥐☕ 주말 방문 시 아메리카노 1잔 무료!</p>
-                                <p class="text-mblue-500 font-medium">#성수카페 #크로플맛집 #주말데이트</p>
-                            </div>
-                            <div class="bg-mblue-600 text-white p-2.5 rounded-2xl rounded-tr-sm ml-8 shadow-sm">
-                                해시태그까지 완벽하네! 대시보드에 예약할게 👍
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
+      <!-- 우측 듀얼 스마트폰 목업 -->
+      <div class="md:col-span-6 flex justify-center items-end gap-4 sm:gap-6">
+        <!-- 좌측 스마트폰: 매장 AI 프로필 & 성과 카드 -->
+        <div class="w-48 sm:w-56 bg-white text-slate-800 rounded-[28px] p-4 phone-shadow transform translate-y-4">
+          <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3"></div>
+          <div class="bg-blue-50 rounded-2xl p-3 text-center mb-3">
+            <div class="w-12 h-12 rounded-full bg-[#4B6BFF] text-white font-bold flex items-center justify-center mx-auto mb-2 text-lg">☕</div>
+            <div class="font-bold text-sm text-slate-900">온기 로스터리 카페</div>
+            <div class="text-[11px] text-[#4B6BFF] font-semibold">AI 마케팅 가동 중 ●</div>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+              <span class="text-slate-500">이번 주 SNS 유입</span>
+              <span class="font-bold text-emerald-600">+142%</span>
             </div>
+            <div class="flex justify-between p-2 bg-slate-50 rounded-lg">
+              <span class="text-slate-500">절감한 대행 비용</span>
+              <span class="font-bold text-slate-900">120만원</span>
+            </div>
+          </div>
+          <a href="dashboard.html" class="mt-3 block w-full py-2 text-center bg-[#4B6BFF] text-white text-xs font-bold rounded-xl">
+            내 매장 적용하기
+          </a>
         </div>
-    </section>
 
-    <!-- =================================================================
-         3. 섹션 2: 서비스 소개 (화이트 배경, 상단 중앙 타이틀 + 2단 컬럼)
-    ================================================================== -->
-    <section id="about" class="py-20 sm:py-28 bg-white">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-14 sm:mb-16">
-                <h2 class="text-2xl sm:text-[32px] font-extrabold text-slate-900 tracking-tight">
-                    마케팅온 AI 소개
-                </h2>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
-                <div class="space-y-3.5">
-                    <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">
-                        마케팅온 AI란?
-                    </h3>
-                    <p class="text-sm sm:text-[15px] text-slate-600 leading-[1.75]">
-                        매장 운영만으로도 하루가 부족한 자영업자·소상공인 사장님을 위한 올인원 AI 셀프 마케팅 솔루션입니다. 비싼 마케팅 대행사를 쓰지 않고도, 매장 업종과 날씨·시즌 이슈에 꼭 맞는 홍보 콘텐츠를 누구나 쉽고 빠르게 제작할 수 있습니다.
-                    </p>
-                </div>
-
-                <div class="space-y-3.5">
-                    <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">
-                        어떤 사장님께 필요한가요?
-                    </h3>
-                    <p class="text-sm sm:text-[15px] text-slate-600 leading-[1.75]">
-                        인스타그램·네이버 블로그·당근마켓에 무엇을 올려야 할지 막막한 사장님, 바쁜 영업 시간 때문에 고객 리뷰 답글이 자꾸 밀리는 사장님, 체계적인 프로모션 캘린더와 유입 성과 분석을 한곳에서 관리하고 싶은 모든 소상공인에게 꼭 필요합니다.
-                    </p>
-                    <div class="pt-1">
-                        <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-mblue-600 hover:text-mblue-700 transition">
-                            실제 대시보드 화면에서 자세히 보기 <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- =================================================================
-         4. 섹션 3: 언제 어디서든 1:1 AI 마케팅 코칭 (#F3F5FD)
-    ================================================================== -->
-    <section id="coaching" class="py-20 sm:py-28 bg-mblue-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 items-center">
-                
-                <!-- 좌측 텍스트 영역 -->
-                <div class="md:col-span-6 space-y-4 text-center md:text-left">
-                    <h2 class="text-2xl sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-[1.3]">
-                        언제 어디서든,<br>
-                        1:1 AI 마케팅 코칭이<br>
-                        가능합니다.
-                    </h2>
-                    <p class="text-sm sm:text-[15px] text-slate-600 leading-relaxed max-w-md mx-auto md:mx-0">
-                        글쓰기 고민은 이제 그만하세요. 오늘 날씨와 매장 상황만 알려주면 AI 마케팅 비서가 손님 발길을 이끄는 이벤트 기획과 인스타 카피를 즉시 제안합니다.
-                    </p>
-                    <div class="pt-2">
-                        <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-mblue-600 hover:text-mblue-700 transition">
-                            AI 콘텐츠 스튜디오 바로가기 <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 우측 교차 배치된 말풍선 채팅 그래픽 -->
-                <div class="md:col-span-6 space-y-4 max-w-md mx-auto w-full">
-                    <div class="flex items-start justify-end gap-2.5 animate-float-slow">
-                        <div class="bg-mblue-600 text-white text-xs sm:text-[13px] font-medium px-4 py-3 rounded-2xl rounded-tr-sm shadow-soft max-w-[270px] leading-relaxed">
-                            오늘 비가 많이 오는데 카페 손님을 늘릴 수 있는 게릴라 이벤트 문구 추천해 줘! ☔
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 font-extrabold text-xs flex items-center justify-center shrink-0 mt-1 border border-rose-200">
-                            사장
-                        </div>
-                    </div>
-
-                    <div class="flex items-start justify-start gap-2.5">
-                        <div class="w-8 h-8 rounded-full bg-mblue-100 text-mblue-600 flex items-center justify-center shrink-0 mt-1 border border-mblue-200">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i>
-                        </div>
-                        <div class="bg-white text-slate-700 text-xs sm:text-[13px] px-4 py-3.5 rounded-2xl rounded-tl-sm shadow-card border border-slate-100 max-w-[290px] leading-relaxed space-y-1.5">
-                            <p>"비 오는 오후, 달콤한 수제 바닐라 라떼 15% 할인 + 수제 쿠키 1개 증정! 🌧️☕ 오늘 매장 방문 시 즉시 적용해 드려요."</p>
-                            <p class="text-[11px] font-bold text-mblue-600">#동네카페 #비오는날데이트 #수제라떼맛집</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start justify-end gap-2.5">
-                        <div class="bg-mblue-600 text-white text-xs sm:text-[13px] font-medium px-4 py-3 rounded-2xl rounded-tr-sm shadow-soft max-w-[270px] leading-relaxed">
-                            네이버 별점 5점 단골 리뷰 답글도 정성스럽게 부탁해!
-                        </div>
-                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 font-extrabold text-xs flex items-center justify-center shrink-0 mt-1 border border-rose-200">
-                            사장
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- =================================================================
-         5. 섹션 4: 실제 후기로 보는 마케팅온 AI (비비드 블루 배경 #5B73F2 + 4열 카드 슬라이더)
-    ================================================================== -->
-    <section id="reviews" class="py-20 sm:py-28 bg-mblue-500 text-white relative overflow-hidden">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center space-y-2.5 mb-12 sm:mb-14">
-                <h2 class="text-2xl sm:text-[32px] font-extrabold tracking-tight">
-                    실제 후기로 보는 마케팅온 AI
-                </h2>
-                <p class="text-xs sm:text-sm text-white/80">
-                    전국 소상공인 사장님들이 직접 경험하고 남긴 생생한 활용 후기를 확인해 보세요.
-                </p>
-            </div>
-
-            <div class="relative">
-                <button type="button" onclick="slideReviews(-1)" aria-label="이전 후기" class="hidden md:flex w-10 h-10 rounded-full bg-white text-slate-700 shadow-lg items-center justify-center absolute -left-5 top-1/2 -translate-y-1/2 z-20 hover:scale-105 transition">
-                    <i data-lucide="chevron-left" class="w-5 h-5"></i>
-                </button>
-
-                <div id="review-slider" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 transition-all duration-300">
-                    
-                    <!-- 후기 카드 1: 카페 -->
-                    <div class="review-card bg-white text-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between space-y-5">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-full bg-amber-100 text-amber-700 font-extrabold text-sm flex items-center justify-center shrink-0">
-                                        김지현
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-extrabold text-slate-900">연남동 OO카페</p>
-                                        <p class="text-[11px] text-slate-400">운영 3년차</p>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-extrabold bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full">카페</span>
-                            </div>
-                            <div class="text-mblue-600 text-sm tracking-tight font-bold">★★★★★</div>
-                            <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                                비 오는 날 아침마다 AI가 추천해 준 라떼 할인 글을 인스타랑 당근에 올렸는데, 평소 한산하던 오후 시간대에 손님이 꽉 찼어요! 글 쓰는 스트레스가 사라졌습니다.
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">2026.10.28 이용 후기</p>
-                    </div>
-
-                    <!-- 후기 카드 2: 음식점 -->
-                    <div class="review-card bg-white text-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between space-y-5">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-full bg-emerald-100 text-emerald-700 font-extrabold text-sm flex items-center justify-center shrink-0">
-                                        박성훈
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-extrabold text-slate-900">성수동 OO식당</p>
-                                        <p class="text-[11px] text-slate-400">운영 5년차</p>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">음식점</span>
-                            </div>
-                            <div class="text-mblue-600 text-sm tracking-tight font-bold">★★★★★</div>
-                            <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                                주방에서 불 잡느라 바빠서 네이버 리뷰 답글을 몇 주씩 밀리곤 했어요. 마감 후 버튼 한 번만 누르면 정성스러운 답글이 바로 완성돼서 단골손님이 늘었습니다.
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">2026.11.02 이용 후기</p>
-                    </div>
-
-                    <!-- 후기 카드 3: 네일샵 -->
-                    <div class="review-card bg-white text-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between space-y-5">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-full bg-rose-100 text-rose-700 font-extrabold text-sm flex items-center justify-center shrink-0">
-                                        최유진
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-extrabold text-slate-900">분당 OO네일샵</p>
-                                        <p class="text-[11px] text-slate-400">1인 샵 운영</p>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-extrabold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 rounded-full">네일샵</span>
-                            </div>
-                            <div class="text-mblue-600 text-sm tracking-tight font-bold">★★★★★</div>
-                            <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                                시술 사진만 찍어두고 멘트를 못 정해서 업로드를 미뤘었는데, 이제 계절별 네일 트렌드 키워드와 해시태그까지 3초 만에 뽑아주니 신규 예약 문의가 2배 늘었어요.
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">2026.11.05 이용 후기</p>
-                    </div>
-
-                    <!-- 후기 카드 4: 공방 -->
-                    <div class="review-card bg-white text-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between space-y-5">
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-11 h-11 rounded-full bg-indigo-100 text-indigo-700 font-extrabold text-sm flex items-center justify-center shrink-0">
-                                        이수빈
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-extrabold text-slate-900">마포 OO공방</p>
-                                        <p class="text-[11px] text-slate-400">원데이클래스</p>
-                                    </div>
-                                </div>
-                                <span class="text-[10px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full">공방</span>
-                            </div>
-                            <div class="text-mblue-600 text-sm tracking-tight font-bold">★★★★★</div>
-                            <p class="text-xs sm:text-[13px] text-slate-600 leading-relaxed">
-                                혼자 공방을 운영하면서 월 120만 원짜리 마케팅 대행사를 끊고 마케팅온 AI로 바꿨어요. 블로그 포스팅 키워드까지 잡아줘서 주말 클래스가 매주 마감됩니다.
-                            </p>
-                        </div>
-                        <p class="text-[11px] text-slate-400 pt-2 border-t border-slate-100">2026.11.09 이용 후기</p>
-                    </div>
-
-                </div>
-
-                <button type="button" onclick="slideReviews(1)" aria-label="다음 후기" class="hidden md:flex w-10 h-10 rounded-full bg-white text-slate-700 shadow-lg items-center justify-center absolute -right-5 top-1/2 -translate-y-1/2 z-20 hover:scale-105 transition">
-                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- 하단 페이지네이션 도트 -->
-            <div class="flex items-center justify-center gap-2 mt-8" id="review-dots">
-                <span class="w-6 h-1.5 rounded-full bg-white transition-all"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-white/40 transition-all"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-white/40 transition-all"></span>
-            </div>
-        </div>
-    </section>
-
-    <!-- =================================================================
-         6. 섹션 5: 인터랙티브 4단계 이용 방법 스튜디오 (#F3F5FD)
-    ================================================================== -->
-    <section id="how-to-use" class="py-20 sm:py-28 bg-mblue-50">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center space-y-2 mb-14 sm:mb-16">
-                <h2 class="text-2xl sm:text-[32px] font-extrabold text-slate-900 tracking-tight">
-                    마케팅온 AI 이용 방법
-                </h2>
-                <p class="text-xs sm:text-sm text-mblue-600 font-semibold">
-                    단계별 스텝을 클릭하거나 우측 스마트폰 화면에서 직접 AI 홍보 문구를 생성해 보세요!
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                
-                <!-- 좌측: 1~4단계 세로 타임라인 스텝 -->
-                <div class="lg:col-span-6 space-y-3 relative">
-                    <div class="hidden sm:block absolute left-[23px] top-8 bottom-8 w-[2px] bg-mblue-200"></div>
-
-                    <!-- Step 1 -->
-                    <button type="button" onclick="selectStep(1)" id="step-btn-1" class="step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl bg-white shadow-card border border-mblue-100 transition relative z-10">
-                        <span id="step-num-1" class="w-7 h-7 rounded-full bg-mblue-600 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 shadow-sm">1</span>
-                        <div>
-                            <h3 class="text-sm sm:text-base font-extrabold text-slate-900">업종 및 매장 등록</h3>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                                카페, 음식점, 뷰티, 공방 등 우리 가게 업종과 지역만 입력하면 AI가 상권과 고객 취향을 자동으로 분석합니다.
-                            </p>
-                        </div>
-                    </button>
-
-                    <!-- Step 2 -->
-                    <button type="button" onclick="selectStep(2)" id="step-btn-2" class="step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl hover:bg-white/70 transition relative z-10">
-                        <span id="step-num-2" class="w-7 h-7 rounded-full bg-slate-300 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">2</span>
-                        <div>
-                            <h3 class="text-sm sm:text-base font-bold text-slate-700">홍보 채널 선택</h3>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                                인스타그램, 네이버 블로그, 당근마켓 중 홍보를 올릴 채널을 선택해 채널별 맞춤 톤앤매너를 설정합니다.
-                            </p>
-                        </div>
-                    </button>
-
-                    <!-- Step 3 -->
-                    <button type="button" onclick="selectStep(3)" id="step-btn-3" class="step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl hover:bg-white/70 transition relative z-10">
-                        <span id="step-num-3" class="w-7 h-7 rounded-full bg-slate-300 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">3</span>
-                        <div>
-                            <h3 class="text-sm sm:text-base font-bold text-slate-700">키워드 입력 및 AI 생성</h3>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                                '신메뉴 출시', '비 오는 날 할인', '주말 이벤트' 등 키워드를 선택하면 감성 카피와 인기 해시태그가 즉시 완성됩니다.
-                            </p>
-                        </div>
-                    </button>
-
-                    <!-- Step 4 -->
-                    <button type="button" onclick="selectStep(4)" id="step-btn-4" class="step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl hover:bg-white/70 transition relative z-10">
-                        <span id="step-num-4" class="w-7 h-7 rounded-full bg-slate-300 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5">4</span>
-                        <div>
-                            <h3 class="text-sm sm:text-base font-bold text-slate-700">원클릭 복사 및 예약</h3>
-                            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-                                완성된 문구를 복사해 바로 업로드하거나, 마케팅온 대시보드 캘린더에 예약해 꾸준히 가게를 알립니다.
-                            </p>
-                        </div>
-                    </button>
-
-                    <div class="pt-2 pl-2">
-                        <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-extrabold text-mblue-600 hover:text-mblue-700 transition">
-                            전체 대시보드에서 자세히 보기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- 우측: 인터랙티브 스마트폰 목업 -->
-                <div class="lg:col-span-6 flex justify-center">
-                    <div class="w-[305px] sm:w-[330px] bg-white rounded-[36px] border-[8px] border-white shadow-phone overflow-hidden">
-                        <div class="px-5 pt-4 pb-3 border-b border-slate-100 flex items-center justify-between bg-white">
-                            <div class="flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full bg-mblue-600"></span>
-                                <span class="text-xs font-extrabold text-slate-900">마케팅온 AI 스튜디오</span>
-                            </div>
-                            <span id="phone-step-badge" class="text-[10px] font-extrabold text-mblue-600 bg-mblue-50 px-2.5 py-0.5 rounded-full">STEP 01</span>
-                        </div>
-
-                        <div class="p-5 bg-slate-50/60 min-h-[385px] flex flex-col justify-between">
-                            
-                            <!-- STEP 1 화면 -->
-                            <div id="phone-screen-1" class="space-y-4">
-                                <div class="bg-gradient-to-r from-mblue-600 to-indigo-500 text-white rounded-2xl p-4 space-y-1.5 shadow-sm">
-                                    <span class="text-[10px] font-bold bg-white/20 px-2 py-0.5 rounded">간편 매장 세팅</span>
-                                    <h4 class="text-sm font-extrabold">우리 가게 정보를 알려주세요</h4>
-                                    <p class="text-[11px] text-white/85">AI가 지역 상권과 단골 취향을 분석합니다.</p>
-                                </div>
-
-                                <div class="bg-white rounded-2xl p-4 border border-slate-100 space-y-3 shadow-sm">
-                                    <div>
-                                        <label class="text-[10px] font-bold text-slate-400">매장명</label>
-                                        <p class="text-xs font-extrabold text-slate-800 mt-0.5">성수 행복카페</p>
-                                    </div>
-                                    <div class="border-t border-slate-100 pt-2.5">
-                                        <label class="text-[10px] font-bold text-slate-400">업종 및 상권</label>
-                                        <p class="text-xs font-bold text-mblue-600 mt-0.5">카페·디저트 / 서울 성수동</p>
-                                    </div>
-                                    <div class="border-t border-slate-100 pt-2.5">
-                                        <label class="text-[10px] font-bold text-slate-400">대표 메뉴 키워드</label>
-                                        <div class="flex flex-wrap gap-1 mt-1">
-                                            <span class="text-[10px] bg-mblue-50 text-mblue-700 font-bold px-2 py-0.5 rounded">#수제라떼</span>
-                                            <span class="text-[10px] bg-mblue-50 text-mblue-700 font-bold px-2 py-0.5 rounded">#크로플</span>
-                                            <span class="text-[10px] bg-mblue-50 text-mblue-700 font-bold px-2 py-0.5 rounded">#감성인테리어</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button type="button" onclick="selectStep(2)" class="w-full py-3 rounded-xl bg-mblue-600 text-white text-xs font-extrabold hover:bg-mblue-700 transition">
-                                    다음: 홍보 채널 선택하기 →
-                                </button>
-                            </div>
-
-                            <!-- STEP 2 & 3 통합 인터랙티브 생성 화면 -->
-                            <div id="phone-screen-2" class="hidden space-y-3.5">
-                                <div class="bg-white rounded-2xl p-3.5 border border-slate-100 space-y-2.5 shadow-sm">
-                                    <p class="text-xs font-extrabold text-slate-800">1. 홍보 채널 선택</p>
-                                    <div class="grid grid-cols-3 gap-1.5 text-center">
-                                        <button type="button" onclick="setPhoneChannel(this, '인스타그램')" class="phone-ch-btn py-2 rounded-xl bg-mblue-600 text-white text-[11px] font-bold">인스타그램</button>
-                                        <button type="button" onclick="setPhoneChannel(this, '네이버 블로그')" class="phone-ch-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-semibold">네이버 블로그</button>
-                                        <button type="button" onclick="setPhoneChannel(this, '당근마켓')" class="phone-ch-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-semibold">당근마켓</button>
-                                    </div>
-                                </div>
-
-                                <div class="bg-white rounded-2xl p-3.5 border border-slate-100 space-y-2 shadow-sm">
-                                    <p class="text-xs font-extrabold text-slate-800">2. 홍보 주제 선택</p>
-                                    <select id="phone-topic" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none">
-                                        <option value="신메뉴 출시">🥐 신메뉴 수제 크로플 출시</option>
-                                        <option value="비 오는 날 할인">🌧️ 비 오는 날 라떼 15% 할인</option>
-                                        <option value="주말 이벤트">🎉 주말 방문 단골 감사 이벤트</option>
-                                    </select>
-                                </div>
-
-                                <button type="button" onclick="triggerPhoneGenerate()" class="w-full py-3 rounded-xl bg-mblue-600 text-white text-xs font-extrabold hover:bg-mblue-700 shadow-md flex items-center justify-center gap-1.5 transition">
-                                    <i data-lucide="sparkles" class="w-4 h-4"></i> AI 문구 3초 생성하기
-                                </button>
-                            </div>
-
-                            <!-- STEP 3 결과 화면 -->
-                            <div id="phone-screen-3" class="hidden space-y-3">
-                                <div class="flex items-center justify-between">
-                                    <span id="phone-res-channel" class="text-[10px] font-extrabold bg-mblue-600 text-white px-2.5 py-0.5 rounded-full">인스타그램용 완성</span>
-                                    <button type="button" onclick="selectStep(2)" class="text-[11px] font-bold text-mblue-600 hover:underline flex items-center gap-1">
-                                        <i data-lucide="sliders-horizontal" class="w-3 h-3"></i> 주제 변경
-                                    </button>
-                                </div>
-
-                                <div class="bg-white rounded-2xl p-3.5 border border-mblue-200 shadow-sm space-y-2">
-                                    <p id="phone-res-title" class="text-xs font-extrabold text-slate-900">🥐 겉바속촉 신메뉴 수제 크로플 출시!</p>
-                                    <p id="phone-res-body" class="text-[11px] text-slate-600 leading-relaxed whitespace-pre-line">매일 아침 프랑스산 고메 버터로 직접 구워낸 시그니처 크로플이 출시되었습니다 ☕
-이번 주 매장 방문 시 아메리카노 1잔 무료 페어링 혜택을 드려요!</p>
-                                    <p id="phone-res-tags" class="text-[10px] font-bold text-mblue-600">#성수카페 #신메뉴출시 #크로플맛집 #디저트카페</p>
-                                </div>
-
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button" onclick="copyPhoneText()" class="py-2.5 rounded-xl bg-slate-900 text-white text-[11px] font-bold flex items-center justify-center gap-1">
-                                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> 문구 복사
-                                    </button>
-                                    <button type="button" onclick="selectStep(4)" class="py-2.5 rounded-xl bg-mblue-100 text-mblue-700 text-[11px] font-extrabold">
-                                        예약 단계 보기 →
-                                    </button>
-                                </div>
-
-                                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="w-full py-2.5 rounded-xl bg-mblue-600 hover:bg-mblue-700 text-white text-[11px] font-extrabold flex items-center justify-center gap-1 transition">
-                                    대시보드에서 이어서 관리하기 →
-                                </a>
-                            </div>
-
-                            <!-- STEP 4 화면: 예약 및 대시보드 연동 -->
-                            <div id="phone-screen-4" class="hidden space-y-4">
-                                <div class="bg-white rounded-2xl p-4 border border-slate-100 shadow-sm space-y-3">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-xs font-extrabold text-slate-800">11월 스마트 마케팅 캘린더</span>
-                                        <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">자동 알림 ON</span>
-                                    </div>
-                                    <div class="space-y-2 text-[11px]">
-                                        <div class="p-2.5 rounded-xl bg-mblue-50 border border-mblue-200 flex items-center justify-between">
-                                            <span class="font-bold text-mblue-700">11/13 (오늘) 신메뉴 출시 안내</span>
-                                            <span class="text-[10px] font-extrabold text-mblue-600">발행 완료</span>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                                            <span class="font-semibold text-slate-700">11/15 (토) 주말 크로플 이벤트</span>
-                                            <span class="text-[10px] font-bold text-slate-400">예약됨</span>
-                                        </div>
-                                        <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-                                            <span class="font-semibold text-slate-700">11/20 (목) 단골 감사 쿠폰 발송</span>
-                                            <span class="text-[10px] font-bold text-slate-400">AI 추천</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="w-full py-3 rounded-xl bg-mblue-600 text-white text-xs font-extrabold hover:bg-mblue-700 transition flex items-center justify-center gap-1.5">
-                                    대시보드에서 이어서 관리하기 →
-                                </a>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- =================================================================
-         7. 섹션 6: 장사에 필요한 모든 홍보가 있는 곳 (화이트 배경 + 8개 업종 카테고리 탭)
-    ================================================================== -->
-    <section id="categories" class="py-20 sm:py-28 bg-white">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start mb-12">
-                <div class="md:col-span-5">
-                    <h2 class="text-2xl sm:text-[34px] font-extrabold text-slate-900 tracking-tight leading-[1.28]">
-                        장사에 필요한<br>
-                        모든 홍보가<br>
-                        있는 곳
-                    </h2>
-                </div>
-                <div class="md:col-span-7 md:pt-2">
-                    <p class="text-sm sm:text-[15px] text-slate-600 leading-[1.75]">
-                        업종마다 손님이 반응하는 포인트와 검색 키워드는 완전히 다릅니다.<br>
-                        마케팅온 AI는 8대 주요 소상공인 업종 데이터를 학습하여, 사장님 매장에 꼭 맞는 검증된 홍보 템플릿과 해시태그를 즉시 제공합니다.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 8개 업종 카테고리 탭 바 -->
-            <div class="flex items-center justify-between border-b border-slate-200 pb-4 overflow-x-auto no-scrollbar gap-4 sm:gap-2">
-                <button type="button" onclick="selectCategory(this, 'cafe')" class="cat-tab active-cat flex flex-col items-center gap-2 min-w-[76px] text-mblue-600 font-extrabold transition">
-                    <div class="w-11 h-11 rounded-2xl bg-mblue-50 border border-mblue-200 flex items-center justify-center">
-                        <i data-lucide="coffee" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">카페·디저트</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-mblue-600 rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'food')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="utensils" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">음식점·주점</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'beauty')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="scissors" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">뷰티·네일</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'craft')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="palette" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">공방·클래스</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'fitness')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="dumbbell" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">헬스·필라테스</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'medical')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="stethoscope" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">병의원·약국</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'edu')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">학원·교육</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-
-                <button type="button" onclick="selectCategory(this, 'shop')" class="cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition">
-                    <div class="w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center">
-                        <i data-lucide="store" class="w-5 h-5"></i>
-                    </div>
-                    <span class="text-xs">소매·편집샵</span>
-                    <span class="cat-bar w-full h-[2.5px] bg-transparent rounded-full"></span>
-                </button>
-            </div>
-
-            <!-- 선택된 업종별 세부 템플릿 & 추천 카피/해시태그 전환 패널 -->
-            <div class="pt-8 space-y-6">
-                <div id="cat-sub-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs sm:text-sm font-semibold text-slate-700">
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">• 시그니처 신메뉴 출시</div>
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">• 비 오는 날 게릴라 할인</div>
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">• 모닝 커피 타임세일</div>
-                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">• 디저트 세트 페어링</div>
-                </div>
-
-                <div class="bg-mblue-50/70 border border-mblue-100 rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                    <div class="space-y-2 max-w-2xl">
-                        <div class="flex items-center gap-2">
-                            <span id="cat-badge" class="text-[11px] font-extrabold text-mblue-600 bg-white px-2.5 py-0.5 rounded-full border border-mblue-200">카페·디저트 AI 추천 샘플</span>
-                            <span class="text-xs text-slate-400">즉시 복사 후 사용 가능</span>
-                        </div>
-                        <p id="cat-copy-text" class="text-sm text-slate-800 font-medium leading-relaxed">
-                            "매일 아침 갓 구운 버터향 가득 크로플과 스페셜티 라떼의 완벽한 조화 ☕ 오늘 방문하시는 분들께 아메리카노 사이즈업 혜택을 드립니다!"
-                        </p>
-                        <p id="cat-tags-text" class="text-xs font-bold text-mblue-600">
-                            #동네카페 #디저트맛집 #크로플맛집 #감성카페 #스페셜티커피 #주말데이트
-                        </p>
-                    </div>
-                    <button type="button" onclick="copyCategorySample()" class="shrink-0 bg-white hover:bg-mblue-600 text-mblue-600 hover:text-white border border-mblue-200 text-xs font-extrabold px-4 py-3 rounded-xl shadow-sm flex items-center gap-1.5 transition">
-                        <i data-lucide="copy" class="w-4 h-4"></i> 샘플 문구 복사
-                    </button>
-                </div>
-
-                <div class="pt-2">
-                    <a id="cat-dashboard-link" href="dashboard.html?category=cafe" onclick="handleDashboardNav(event, this.getAttribute('href'))" class="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-mblue-600 hover:underline">
-                        카페·디저트 맞춤형 대시보드 바로 열기 <i data-lucide="chevron-right" class="w-4 h-4"></i>
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- =================================================================
-         8. 섹션 7: 하단 CTA 배너 (비비드 블루 그라데이션 배경)
-    ================================================================== -->
-    <section class="cta-vivid-bg py-16 sm:py-20 text-white text-center relative overflow-hidden">
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative z-10 space-y-6">
-            <h2 class="text-xl sm:text-[28px] font-extrabold tracking-tight">
-                우리 매장 맞춤 마케팅, 지금 바로 시작해 볼까요?
-            </h2>
-            <div class="flex flex-wrap items-center justify-center gap-3">
-                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="bg-white text-mblue-700 hover:bg-mblue-50 text-xs sm:text-sm font-extrabold px-7 py-3.5 rounded-xl shadow-lg transition">
-                    무료로 시작하기
-                </a>
-                <a href="#how-to-use" class="bg-white/15 hover:bg-white/25 text-white border border-white/35 text-xs sm:text-sm font-bold px-7 py-3.5 rounded-xl backdrop-blur-sm transition">
-                    이용 방법 먼저 보기
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- =================================================================
-         9. 푸터 (화이트 배경 한국형 SaaS 푸터)
-    ================================================================== -->
-    <footer class="bg-white py-12 border-t border-slate-200/80 text-center text-slate-400">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 space-y-4">
-            <div class="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-500">
-                <a href="index.html" class="font-bold text-slate-700 hover:text-mblue-600">서비스 소개</a>
-                <span class="text-slate-200">|</span>
-                <a href="dashboard.html" onclick="handleDashboardNav(event, 'dashboard.html')" class="font-bold text-mblue-600 hover:underline">AI 마케팅 대시보드</a>
-                <span class="text-slate-200">|</span>
-                <a href="#about" class="hover:text-slate-800">이용약관</a>
-                <span class="text-slate-200">|</span>
-                <a href="#about" class="hover:text-slate-800">개인정보처리방침</a>
-            </div>
-
-            <p class="text-[11px] text-slate-400 leading-relaxed">
-                (주)마케팅온에이아이 | 대표이사: 김민준 | 사업자등록번호: 123-81-45678 | 서울특별시 성동구 성수이로 77, 4층<br>
-                마케팅온 AI는 소상공인·자영업자의 성공적인 디지털 마케팅 전환을 지원하는 셀프 마케팅 플랫폼입니다.
+        <!-- 우측 스마트폰: AI 콘텐츠 자동 생성 미리보기 -->
+        <div class="w-52 sm:w-60 bg-white text-slate-800 rounded-[28px] p-4 phone-shadow -translate-y-2">
+          <div class="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-3"></div>
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold text-[#4B6BFF] bg-blue-50 px-2 py-0.5 rounded">인스타그램 자동생성</span>
+            <span class="text-[10px] text-slate-400">방금 전</span>
+          </div>
+          <div class="bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl p-3 mb-2.5">
+            <div class="text-xs font-extrabold text-slate-900 mb-1">비 오는 오후, 아메리카노 1+1 ☕</div>
+            <p class="text-[11px] text-slate-600 leading-relaxed">
+              창밖 빗소리와 함께 즐기는 스페셜티 커피! 오늘 오후 5시까지 방문 고객님께 한 잔 더 드려요.
             </p>
-
-            <div class="pt-2 flex items-center justify-center gap-2 text-xs font-bold text-slate-600">
-                <span class="text-mblue-600 font-display font-extrabold">MarketingOn AI</span>
-                <span class="text-slate-400 font-normal">Copyright © MarketingOn AI Corp. All Rights Reserved.</span>
-            </div>
+          </div>
+          <div class="text-[10px] text-[#4B6BFF] font-medium mb-3">
+            #동네카페 #비오는날이벤트 #성수카페
+          </div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <a href="dashboard.html" class="py-1.5 text-center bg-slate-100 text-slate-700 rounded-lg text-[11px] font-semibold">문구 수정</a>
+            <a href="dashboard.html" class="py-1.5 text-center bg-[#4B6BFF] text-white rounded-lg text-[11px] font-semibold">예약 발행</a>
+          </div>
         </div>
-    </footer>
+      </div>
+    </div>
+  </section>
 
-    <!-- =================================================================
-         JavaScript 인터랙션 로직
-    ================================================================== -->
-    <script>
-        // Lucide 아이콘 초기화
-        lucide.createIcons();
+  <!-- 3. 서비스 핵심 소개 (화이트 섹션) -->
+  <section id="intro" class="py-20 bg-white">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="text-center mb-14">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">마케팅온 AI 소개</h2>
+        <p class="text-slate-500 mt-2 text-sm sm:text-base">바쁜 사장님을 대신해 24시간 일하는 매장 전담 AI 마케터입니다.</p>
+      </div>
+      <div class="grid md:grid-cols-2 gap-10">
+        <div class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50">
+          <div class="text-xs font-bold text-[#4B6BFF] mb-2">WHY MARKETING-ON</div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">마케팅온 AI란 무엇인가요?</h3>
+          <p class="text-slate-600 text-sm leading-relaxed">
+            글쓰기나 디자인 툴이 익숙하지 않은 소상공인도 업종과 오늘의 이벤트 키워드만 선택하면, 채널별(인스타·네이버 블로그·당근마켓) 최적화된 홍보 문구와 일정을 자동으로 만들어주는 셀프 마케팅 대시보드입니다.
+          </p>
+        </div>
+        <div class="p-8 rounded-2xl border border-slate-100 bg-slate-50/50">
+          <div class="text-xs font-bold text-[#4B6BFF] mb-2">CORE VALUE</div>
+          <h3 class="text-xl font-bold text-slate-900 mb-3">어떤 기능들을 제공하나요?</h3>
+          <p class="text-slate-600 text-sm leading-relaxed mb-4">
+            단순 글 생성을 넘어 날씨·시즌 이슈 기반의 오늘의 마케팅 미션 추천, 스마트 포스팅 캘린더, 긍정/부정 리뷰 성향 분석 및 감성 답글 자동 작성까지 한 곳에서 관리할 수 있습니다.
+          </p>
+          <a href="dashboard.html" class="text-sm font-bold text-[#4B6BFF] hover:underline">대시보드 기능 직접 둘러보기 →</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        // 스크롤 시 상단 GNB 스타일 전환
-        window.addEventListener('scroll', () => {
-            const gnb = document.getElementById('gnb');
-            const badge = document.getElementById('gnb-badge');
-            const btnSub = document.getElementById('gnb-btn-sub');
-            const btnMain = document.getElementById('gnb-btn-main');
+  <!-- 4. 1:1 AI 코칭 그래픽 섹션 (라벤더 블루 배경) -->
+  <section id="coaching" class="py-20 lavender-bg">
+    <div class="max-w-5xl mx-auto px-5 grid md:grid-cols-12 gap-10 items-center">
+      <div class="md:col-span-5 space-y-4">
+        <span class="text-xs font-bold text-[#4B6BFF] uppercase tracking-wider">24/7 AI ASSISTANT</span>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-snug">
+          언제 어디서든,<br />
+          매장 맞춤 코칭이 가능합니다.
+        </h2>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          “오늘 비가 오는데 손님이 적어요”, “별점 3점 리뷰에 어떻게 답글 달죠?”<br />
+          고민되는 순간 바로 대시보드에 입력만 하세요. 즉시 실행 가능한 해결책을 드립니다.
+        </p>
+        <div class="pt-2">
+          <a href="dashboard.html" class="inline-flex items-center text-sm font-bold text-[#4B6BFF] hover:underline">
+            AI 리뷰·홍보 코칭 바로 체험하기 →
+          </a>
+        </div>
+      </div>
 
-            if (window.scrollY > 40) {
-                gnb.classList.remove('bg-transparent', 'text-white');
-                gnb.classList.add('bg-white/95', 'backdrop-blur-md', 'text-slate-900', 'border-b', 'border-slate-200/80', 'shadow-sm');
-                badge.className = 'text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-mblue-50 text-mblue-600 border border-mblue-200 transition';
-                if (btnSub) btnSub.className = 'hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
-                btnMain.className = 'inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-mblue-600 hover:bg-mblue-700 text-white shadow-sm transition';
-            } else {
-                gnb.classList.add('bg-transparent', 'text-white');
-                gnb.classList.remove('bg-white/95', 'backdrop-blur-md', 'text-slate-900', 'border-b', 'border-slate-200/80', 'shadow-sm');
-                badge.className = 'text-[11px] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white border border-white/30 transition';
-                if (btnSub) btnSub.className = 'hidden sm:inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-white text-mblue-700 hover:bg-mblue-50 shadow-sm transition';
-                btnMain.className = 'inline-flex items-center gap-1.5 text-xs font-bold px-4 py-2 rounded-full bg-white/20 hover:bg-white/30 text-white border border-white/35 backdrop-blur-sm transition';
-            }
-        });
+      <!-- 말풍선 UI 그래픽 -->
+      <div class="md:col-span-7 space-y-4">
+        <div class="flex justify-end">
+          <div class="bg-[#4B6BFF] text-white px-5 py-3.5 rounded-2xl rounded-tr-sm shadow-md max-w-sm text-sm">
+            주말 피크타임 대기 때문에 아쉽다는 리뷰가 달렸어요. 정중하게 답글 좀 써주세요!
+          </div>
+        </div>
+        <div class="flex justify-start items-start gap-3">
+          <div class="w-9 h-9 rounded-full bg-white border border-blue-100 flex items-center justify-center font-bold text-[#4B6BFF] shrink-0 shadow-sm">AI</div>
+          <div class="bg-white text-slate-700 px-5 py-4 rounded-2xl rounded-tl-sm card-shadow max-w-md text-sm leading-relaxed">
+            <div class="text-xs font-bold text-[#4B6BFF] mb-1">✨ AI 감성 답글 추천 완료</div>
+            “소중한 시간 내어 방문해 주셨는데 대기 시간으로 불편을 드려 죄송합니다. 주말 피크타임 동선을 개선해 다음엔 더욱 쾌적하게 모시겠습니다!”
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <div class="bg-[#4B6BFF] text-white px-5 py-3.5 rounded-2xl rounded-tr-sm shadow-md max-w-xs text-sm">
+            완벽해요! 바로 저장하고 당근마켓 단골 공지도 부탁해요 👍
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        function toggleMobileMenu() {
-            document.getElementById('mobile-menu').classList.toggle('hidden');
+  <!-- 5. 실제 후기 섹션 (비비드 블루 그라데이션) -->
+  <section id="reviews" class="py-20 review-gradient text-white">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="text-center mb-12">
+        <h2 class="text-2xl sm:text-3xl font-extrabold">실제 후기로 보는 마케팅온 AI</h2>
+        <p class="text-blue-100 text-sm mt-2">전국 자영업자·소상공인 사장님들이 직접 경험한 변화입니다.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-white text-slate-800 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-blue-100 text-[#4B6BFF] font-bold flex items-center justify-center">김</div>
+            <div>
+              <div class="font-bold text-sm">김민수 사장님</div>
+              <div class="text-xs text-slate-400">카페·디저트 운영</div>
+            </div>
+          </div>
+          <div class="text-amber-400 text-xs mb-2">★★★★★</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            “인스타 올릴 때마다 멘트 고민하느라 1시간씩 걸렸는데, 이제 매장 마감 전에 3분이면 일주일 치 예약까지 끝냅니다.”
+          </p>
+        </div>
+
+        <div class="bg-white text-slate-800 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center">박</div>
+            <div>
+              <div class="font-bold text-sm">박서연 원장님</div>
+              <div class="text-xs text-slate-400">네일·뷰티샵</div>
+            </div>
+          </div>
+          <div class="text-amber-400 text-xs mb-2">★★★★★</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            “당근마켓 단골 공지 문구 하나 바꿨을 뿐인데 신규 예약 문의가 두 배 넘게 늘었어요. 대행사 비용 100만원 아꼈습니다.”
+          </p>
+        </div>
+
+        <div class="bg-white text-slate-800 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center">이</div>
+            <div>
+              <div class="font-bold text-sm">이정훈 대표님</div>
+              <div class="text-xs text-slate-400">동네 수제버거</div>
+            </div>
+          </div>
+          <div class="text-amber-400 text-xs mb-2">★★★★★</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            “배달앱 리뷰 답글 달기가 늘 숙제였는데 AI가 매장 톤에 맞춰 정성스럽게 써주니 단골 재주문율이 확실히 올랐습니다.”
+          </p>
+        </div>
+
+        <div class="bg-white/95 text-slate-800 rounded-2xl p-6 shadow-lg">
+          <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-full bg-purple-100 text-purple-700 font-bold flex items-center justify-center">최</div>
+            <div>
+              <div class="font-bold text-sm">최유진 작가님</div>
+              <div class="text-xs text-slate-400">도자기 원데이 공방</div>
+            </div>
+          </div>
+          <div class="text-amber-400 text-xs mb-2">★★★★★</div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            “스마트 캘린더에서 기념일·시즌 이벤트를 먼저 추천해 줘서 원데이 클래스 모집 타이밍을 놓치지 않게 됐어요.”
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. 4단계 인터랙티브 이용 방법 (라벤더 블루 배경) -->
+  <section id="howto" class="py-20 lavender-bg">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="text-center mb-14">
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900">마케팅온 AI 이용 방법</h2>
+        <p class="text-slate-500 text-sm mt-2">단 4단계로 매장 홍보 콘텐츠 제작부터 일정 관리까지 완료됩니다.</p>
+      </div>
+
+      <div class="grid md:grid-cols-12 gap-10 items-center">
+        <!-- 좌측 4단계 타임라인 -->
+        <div class="md:col-span-6 space-y-4">
+          <div onclick="setStep(1)" id="step-btn-1" class="step-card cursor-pointer p-5 rounded-2xl bg-white border-2 border-[#4B6BFF] shadow-sm transition">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-[#4B6BFF] text-white text-xs font-bold flex items-center justify-center">1</span>
+              <h3 class="font-bold text-slate-900">매장 업종 및 홍보 채널 선택</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 pl-10">인스타그램, 네이버 블로그, 당근마켓 중 원하는 채널을 고릅니다.</p>
+          </div>
+
+          <div onclick="setStep(2)" id="step-btn-2" class="step-card cursor-pointer p-5 rounded-2xl bg-white/70 border border-slate-200 hover:bg-white transition">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">2</span>
+              <h3 class="font-bold text-slate-900">오늘의 홍보 키워드 입력</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 pl-10">“신메뉴 출시”, “비 오는 날 할인” 등 간단한 단어만 입력하세요.</p>
+          </div>
+
+          <div onclick="setStep(3)" id="step-btn-3" class="step-card cursor-pointer p-5 rounded-2xl bg-white/70 border border-slate-200 hover:bg-white transition">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">3</span>
+              <h3 class="font-bold text-slate-900">AI 맞춤 카피 & 해시태그 3초 생성</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 pl-10">클릭을 부르는 제목, 본문, 해시태그가 자동으로 완성됩니다.</p>
+          </div>
+
+          <div onclick="setStep(4)" id="step-btn-4" class="step-card cursor-pointer p-5 rounded-2xl bg-white/70 border border-slate-200 hover:bg-white transition">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">4</span>
+              <h3 class="font-bold text-slate-900">DB 저장 및 마케팅 캘린더 예약</h3>
+            </div>
+            <p class="text-xs text-slate-500 mt-2 pl-10">생성된 문구를 복사하거나 대시보드 캘린더에 바로 저장합니다.</p>
+          </div>
+        </div>
+
+        <!-- 우측 인터랙티브 미니 스튜디오 목업 -->
+        <div class="md:col-span-6 flex justify-center">
+          <div class="w-full max-w-sm bg-white rounded-[32px] p-6 phone-shadow border border-slate-100">
+            <div class="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-5"></div>
+            <div class="flex items-center justify-between mb-4">
+              <span class="text-xs font-extrabold text-[#4B6BFF]">LIVE AI 미리보기</span>
+              <span id="step-badge" class="text-[11px] bg-blue-50 text-[#4B6BFF] px-2.5 py-0.5 rounded-full font-semibold">STEP 1</span>
+            </div>
+
+            <div class="space-y-3">
+              <div>
+                <label class="text-[11px] font-bold text-slate-500 block mb-1">채널 선택</label>
+                <div class="grid grid-cols-3 gap-1.5" id="demo-channels">
+                  <button type="button" onclick="selectDemoChannel('인스타그램')" class="demo-ch-btn py-1.5 text-xs font-bold rounded-lg bg-[#4B6BFF] text-white">인스타그램</button>
+                  <button type="button" onclick="selectDemoChannel('블로그')" class="demo-ch-btn py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600">블로그</button>
+                  <button type="button" onclick="selectDemoChannel('당근마켓')" class="demo-ch-btn py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600">당근마켓</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[11px] font-bold text-slate-500 block mb-1">홍보 주제</label>
+                <input id="demo-topic" type="text" value="주말 방문 고객 아메리카노 1+1" class="w-full text-xs border border-slate-200 rounded-xl px-3 py-2.5 focus:outline-none focus:border-[#4B6BFF]" />
+              </div>
+
+              <button type="button" onclick="generateDemoCopy()" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition">
+                ✨ AI 문구 즉시 생성하기
+              </button>
+
+              <div class="bg-[#F3F5FD] rounded-2xl p-3.5 text-xs space-y-1.5">
+                <div id="demo-result-title" class="font-bold text-slate-900">주말엔 둘이서 커피 한 잔의 여유 ☕</div>
+                <p id="demo-result-body" class="text-slate-600 leading-relaxed text-[11px]">
+                  이번 주말 매장 방문 고객님께 스페셜티 아메리카노 1+1 혜택을 드립니다! 소중한 사람과 함께 들러보세요.
+                </p>
+                <div id="demo-result-tags" class="text-[10px] font-semibold text-[#4B6BFF]">#주말데이트 #동네카페 #커피이벤트</div>
+              </div>
+
+              <a href="dashboard.html" class="block w-full py-3 text-center bg-[#4B6BFF] hover:bg-[#3B5BDB] text-white text-xs font-bold rounded-xl transition">
+                전체 대시보드에서 이어서 관리하기 →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. 8대 업종별 맞춤 탭 (화이트 섹션) -->
+  <section id="categories" class="py-20 bg-white">
+    <div class="max-w-5xl mx-auto px-5">
+      <div class="grid md:grid-cols-12 gap-6 items-end mb-10">
+        <div class="md:col-span-5">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+            우리 매장에 필요한<br />
+            모든 마케팅이 있는 곳
+          </h2>
+        </div>
+        <div class="md:col-span-7 text-sm text-slate-500">
+          업종을 선택하시면 해당 매장에서 가장 반응이 좋은 핵심 홍보 키워드와 대시보드 템플릿을 바로 확인하실 수 있습니다.
+        </div>
+      </div>
+
+      <!-- 8개 업종 탭 버튼 -->
+      <div class="grid grid-cols-4 sm:grid-cols-8 gap-2 pb-6 border-b border-slate-100" id="category-tabs"></div>
+
+      <!-- 선택된 업종 상세 카드 -->
+      <div id="category-detail" class="mt-8 p-6 sm:p-8 rounded-2xl bg-[#F3F5FD] flex flex-col md:flex-row items-start md:items-center justify-between gap-6"></div>
+    </div>
+  </section>
+
+  <!-- 8. 하단 CTA 배너 -->
+  <section class="cta-gradient py-16 text-white text-center">
+    <div class="max-w-3xl mx-auto px-5 space-y-6">
+      <h2 class="text-2xl sm:text-3xl font-extrabold">
+        우리 매장 매출 올리는 AI 마케터,<br class="sm:hidden" /> 지금 바로 시작해 보세요!
+      </h2>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a href="dashboard.html" class="px-8 py-3.5 bg-white text-[#4B6BFF] font-bold rounded-xl shadow hover:bg-blue-50 transition">
+          대시보드 무료로 시작하기
+        </a>
+        <button onclick="openLeadModal()" class="px-8 py-3.5 bg-white/15 hover:bg-white/25 text-white font-semibold rounded-xl border border-white/30 transition">
+          도입 상담 및 데모 신청
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. 푸터 -->
+  <footer class="bg-slate-900 text-slate-400 py-10 text-xs">
+    <div class="max-w-6xl mx-auto px-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="font-bold text-white text-sm">마케팅온 AI (MarketingOn AI)</div>
+      <div>소상공인을 위한 AI 활용 셀프 마케팅 올인원 솔루션 © 2026 All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- 무료 체험 / 도입 문의 모달 (Supabase waitlist_leads 연동) -->
+  <div id="lead-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative">
+      <button onclick="closeLeadModal()" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 text-lg font-bold">✕</button>
+      <div class="text-xs font-bold text-[#4B6BFF] mb-1">FREE TRIAL & CONSULTING</div>
+      <h3 class="text-xl font-extrabold text-slate-900 mb-2">마케팅온 AI 무료 체험 신청</h3>
+      <p class="text-xs text-slate-500 mb-5">매장 정보를 남겨주시면 업종 맞춤 AI 템플릿 세팅을 도와드립니다.</p>
+
+      <form onsubmit="handleLeadSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">매장명 *</label>
+          <input id="lead-store" type="text" required placeholder="예: 온기 로스터리 카페" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#4B6BFF]" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">업종 선택</label>
+          <select id="lead-category" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#4B6BFF]">
+            <option value="카페·디저트">카페·디저트</option>
+            <option value="음식점·배달">음식점·배달</option>
+            <option value="뷰티·네일">뷰티·네일</option>
+            <option value="공방·클래스">공방·클래스</option>
+            <option value="헬스·필라테스">헬스·필라테스</option>
+            <option value="소매·편집샵">소매·편집샵</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">연락처 또는 이메일 *</label>
+          <input id="lead-contact" type="text" required placeholder="010-1234-5678 또는 owner@store.kr" class="w-full border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:border-[#4B6BFF]" />
+        </div>
+        <button id="lead-submit-btn" type="submit" class="w-full py-3 bg-[#4B6BFF] hover:bg-[#3B5BDB] text-white font-bold rounded-xl text-sm transition">
+          신청 완료하고 대시보드 보기
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // 4단계 타임라인 인터랙션
+    function setStep(step) {
+      document.getElementById('step-badge').textContent = `STEP ${step}`;
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step-btn-${i}`);
+        const badge = el.querySelector('span');
+        if (i === step) {
+          el.className = 'step-card cursor-pointer p-5 rounded-2xl bg-white border-2 border-[#4B6BFF] shadow-sm transition';
+          badge.className = 'w-7 h-7 rounded-full bg-[#4B6BFF] text-white text-xs font-bold flex items-center justify-center';
+        } else {
+          el.className = 'step-card cursor-pointer p-5 rounded-2xl bg-white/70 border border-slate-200 hover:bg-white transition';
+          badge.className = 'w-7 h-7 rounded-full bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center';
         }
+      }
+    }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
-            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none');
-            }, 3200);
+    // 미니 스튜디오 데모
+    let currentDemoChannel = '인스타그램';
+    function selectDemoChannel(ch) {
+      currentDemoChannel = ch;
+      document.querySelectorAll('.demo-ch-btn').forEach(btn => {
+        if (btn.textContent === ch) {
+          btn.className = 'demo-ch-btn py-1.5 text-xs font-bold rounded-lg bg-[#4B6BFF] text-white';
+        } else {
+          btn.className = 'demo-ch-btn py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600';
         }
+      });
+      generateDemoCopy();
+    }
 
-        // 대시보드 이동 처리 (Vercel 배포 환경에서는 dashboard.html로 즉시 이동, 단일 파일 미리보기 환경에서는 안내 토스트 제공)
-        function handleDashboardNav(e, targetUrl) {
-            if (window.location.protocol === 'about:' || window.location.protocol === 'blob:') {
-                e.preventDefault();
-                showToast(`🚀 배포 환경에서는 '${targetUrl}' 대시보드 페이지로 즉시 연결됩니다!`);
-            }
+    function generateDemoCopy() {
+      const topic = document.getElementById('demo-topic').value || '신메뉴 출시 이벤트';
+      const titleEl = document.getElementById('demo-result-title');
+      const bodyEl = document.getElementById('demo-result-body');
+      const tagsEl = document.getElementById('demo-result-tags');
+
+      if (currentDemoChannel === '인스타그램') {
+        titleEl.textContent = `✨ 오늘만 드리는 특별 혜택: ${topic}`;
+        bodyEl.textContent = `지금 매장에 방문하시고 '${topic}' 혜택을 만나보세요! 감성 가득한 공간에서 정성껏 준비했습니다.`;
+        tagsEl.textContent = `#인스타핫플 #동네맛집 #이벤트추천`;
+      } else if (currentDemoChannel === '블로그') {
+        titleEl.textContent = `[매장소식] ${topic} 상세 안내 및 이용 꿀팁 정리`;
+        bodyEl.textContent = `안녕하세요! 오늘은 많은 단골분들이 기다려주신 '${topic}' 소식을 자세히 정리해 드립니다. 방문 전 꼭 확인해 보세요.`;
+        tagsEl.textContent = `#네이버블로그 #솔직후기 #방문추천`;
+      } else {
+        titleEl.textContent = `[당근단골혜택] 이웃님들께만 드리는 ${topic} 🥕`;
+        bodyEl.textContent = `당근 보고 오셨다고 말씀해 주세요! 우리 동네 이웃님들을 위해 '${topic}' 프로모션을 준비했습니다.`;
+        tagsEl.textContent = `#당근단골 #동네혜택 #이웃할인`;
+      }
+    }
+
+    // 8대 업종 데이터
+    const categoriesData = [
+      { icon: '☕', name: '카페·디저트', keywords: ['#신메뉴출시', '#비오는날1+1', '#당근단골쿠폰'], sample: '갓 구운 수제 디저트와 스페셜티 커피 페어링 인스타그램 릴스/피드 카피' },
+      { icon: '🍽️', name: '음식점·배달', keywords: ['#점심특선', '#배달리뷰답글', '#단체예약환영'], sample: '점심 피크타임 직장인 타겟 네이버 플레이스 소식 & 리뷰 감사 답글' },
+      { icon: '💅', name: '뷰티·네일', keywords: ['#이달의아트', '#첫방문할인', '#예약마감임박'], sample: '월별 시즌 네일/속눈썹 프로모션 안내 및 노쇼 방지 친절 리마인드' },
+      { icon: '🎨', name: '공방·클래스', keywords: ['#원데이클래스', '#커플데이트', '#기념일선물'], sample: '주말 원데이 클래스 수강생 모집 블로그 포스팅 및 인스타그램 카드뉴스' },
+      { icon: '💪', name: '헬스·필라테스', keywords: ['#여름준비PT', '#무료체형분석', '#선착순등록'], sample: '신규 회원 무료 체험권 홍보 당근마켓 지역 광고 카피' },
+      { icon: '🏥', name: '병원·약국', keywords: ['#야간진료안내', '#건강검진시즌', '#정기휴진공지'], sample: '환자분들이 한눈에 보기 쉬운 진료 시간 변경 및 계절 건강 칼럼' },
+      { icon: '📚', name: '학원·교습소', keywords: ['#신학기특강', '#내신대비반', '#학부모설명회'], sample: '학부모님 신뢰를 높이는 커리큘럼 소개 및 상담 예약 안내문' },
+      { icon: '🛍️', name: '소매·편집샵', keywords: ['#시즌오프세일', '#신상입고', '#한정수량'], sample: '신상품 입고 알림 및 단골 고객 재방문 유도 시즌 세일 메시지' }
+    ];
+
+    let activeCatIdx = 0;
+    function renderCategories() {
+      const tabsEl = document.getElementById('category-tabs');
+      tabsEl.innerHTML = categoriesData.map((cat, idx) => `
+        <button onclick="selectCategory(${idx})" class="flex flex-col items-center gap-1.5 p-3 rounded-xl transition ${idx === activeCatIdx ? 'bg-[#4B6BFF] text-white shadow-sm' : 'hover:bg-slate-50 text-slate-600'}">
+          <span class="text-xl">${cat.icon}</span>
+          <span class="text-xs font-bold whitespace-nowrap">${cat.name}</span>
+        </button>
+      `).join('');
+
+      const current = categoriesData[activeCatIdx];
+      document.getElementById('category-detail').innerHTML = `
+        <div class="space-y-2">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">${current.icon}</span>
+            <h3 class="text-lg font-extrabold text-slate-900">${current.name} 맞춤 AI 솔루션</h3>
+          </div>
+          <p class="text-sm text-slate-600">${current.sample}</p>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            ${current.keywords.map(k => `<span class="px-2.5 py-1 bg-white text-[#4B6BFF] text-xs font-bold rounded-full">${k}</span>`).join('')}
+          </div>
+        </div>
+        <a href="dashboard.html?category=${encodeURIComponent(current.name)}" class="shrink-0 px-6 py-3.5 bg-[#4B6BFF] hover:bg-[#3B5BDB] text-white text-sm font-bold rounded-xl shadow transition">
+          ${current.name} 대시보드 바로 열기 →
+        </a>
+      `;
+    }
+
+    function selectCategory(idx) {
+      activeCatIdx = idx;
+      renderCategories();
+    }
+    renderCategories();
+
+    // 모달 제어 및 Supabase 저장
+    function openLeadModal() {
+      document.getElementById('lead-modal').classList.remove('hidden');
+    }
+    function closeLeadModal() {
+      document.getElementById('lead-modal').classList.add('hidden');
+    }
+
+    async function handleLeadSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('lead-submit-btn');
+      const store_name = document.getElementById('lead-store').value.trim();
+      const category = document.getElementById('lead-category').value;
+      const phone_or_email = document.getElementById('lead-contact').value.trim();
+
+      btn.disabled = true;
+      btn.textContent = 'Supabase에 저장 중...';
+
+      try {
+        if (window.MarketingDB) {
+          await window.MarketingDB.submitLead({ store_name, phone_or_email, category });
         }
-
-        // 섹션 4: 후기 슬라이더 좌우 이동
-        let reviewIndex = 0;
-        function slideReviews(dir) {
-            const slider = document.getElementById('review-slider');
-            const cards = Array.from(slider.children);
-            if (dir > 0) {
-                slider.appendChild(cards[0]);
-                reviewIndex = (reviewIndex + 1) % 3;
-            } else {
-                slider.insertBefore(cards[cards.length - 1], cards[0]);
-                reviewIndex = (reviewIndex + 2) % 3;
-            }
-            const dots = document.getElementById('review-dots').children;
-            Array.from(dots).forEach((dot, idx) => {
-                dot.className = idx === reviewIndex
-                    ? 'w-6 h-1.5 rounded-full bg-white transition-all'
-                    : 'w-1.5 h-1.5 rounded-full bg-white/40 transition-all';
-            });
-        }
-
-        // 섹션 5: 이용 방법 1~4단계 스텝 전환 및 스마트폰 인터랙션
-        let activePhoneChannel = '인스타그램';
-
-        function selectStep(stepNum) {
-            for (let i = 1; i <= 4; i++) {
-                const btn = document.getElementById(`step-btn-${i}`);
-                const num = document.getElementById(`step-num-${i}`);
-                const title = btn.querySelector('h3');
-                const screen = document.getElementById(`phone-screen-${i}`);
-
-                if (i === stepNum) {
-                    btn.className = 'step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl bg-white shadow-card border border-mblue-100 transition relative z-10';
-                    num.className = 'w-7 h-7 rounded-full bg-mblue-600 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5 shadow-sm';
-                    title.className = 'text-sm sm:text-base font-extrabold text-slate-900';
-                    screen.classList.remove('hidden');
-                } else {
-                    btn.className = 'step-item w-full text-left flex items-start gap-4 p-4 rounded-2xl hover:bg-white/70 transition relative z-10';
-                    num.className = 'w-7 h-7 rounded-full bg-slate-300 text-white text-xs font-extrabold flex items-center justify-center shrink-0 mt-0.5';
-                    title.className = 'text-sm sm:text-base font-bold text-slate-700';
-                    screen.classList.add('hidden');
-                }
-            }
-            document.getElementById('phone-step-badge').innerText = `STEP 0${stepNum}`;
-        }
-
-        function setPhoneChannel(btn, channelName) {
-            activePhoneChannel = channelName;
-            document.querySelectorAll('.phone-ch-btn').forEach(b => {
-                b.className = 'phone-ch-btn py-2 rounded-xl bg-slate-100 text-slate-600 text-[11px] font-semibold';
-            });
-            btn.className = 'phone-ch-btn py-2 rounded-xl bg-mblue-600 text-white text-[11px] font-bold';
-        }
-
-        function triggerPhoneGenerate() {
-            const topic = document.getElementById('phone-topic').value;
-            selectStep(3);
-
-            document.getElementById('phone-res-channel').innerText = `${activePhoneChannel}용 완성`;
-
-            const contentMap = {
-                '신메뉴 출시': {
-                    title: '🥐 겉바속촉 신메뉴 수제 크로플 출시!',
-                    body: '매일 아침 프랑스산 고메 버터로 직접 구워낸 시그니처 크로플이 출시되었습니다 ☕\n이번 주 매장 방문 시 아메리카노 1잔 무료 페어링 혜택을 드려요!',
-                    tags: '#성수카페 #신메뉴출시 #크로플맛집 #디저트카페'
-                },
-                '비 오는 날 할인': {
-                    title: '🌧️ 비 오는 날 라떼 15% 할인 이벤트!',
-                    body: '창밖으로 빗소리가 운치 있게 들리는 오늘 ☕\n성수 행복카페에서 따뜻한 라떼 15% 할인 + 수제 쿠키 증정 이벤트를 진행합니다!',
-                    tags: '#성수카페 #비오는날데이트 #라떼맛집 #단골이벤트'
-                },
-                '주말 이벤트': {
-                    title: '🎉 주말 방문 단골 감사 특별 이벤트!',
-                    body: '설레는 주말, 소중한 분들과 함께 방문해 주시는 단골 고객님들께 전 메뉴 10% 할인 쿠폰과 미니 디저트를 증정합니다 💛',
-                    tags: '#주말데이트 #성수동핫플 #단골감사 #주말이벤트'
-                }
-            };
-
-            const selected = contentMap[topic] || contentMap['신메뉴 출시'];
-            document.getElementById('phone-res-title').innerText = selected.title;
-            document.getElementById('phone-res-body').innerText = selected.body;
-            document.getElementById('phone-res-tags').innerText = selected.tags;
-            showToast('✨ AI 홍보 문구가 3초 만에 생성되었습니다!');
-        }
-
-        function copyPhoneText() {
-            const title = document.getElementById('phone-res-title').innerText;
-            const body = document.getElementById('phone-res-body').innerText;
-            const tags = document.getElementById('phone-res-tags').innerText;
-            copyToClipboard(`${title}\n\n${body}\n\n${tags}`);
-            showToast('📋 AI 홍보 문구가 클립보드에 복사되었습니다!');
-        }
-
-        // 섹션 6: 8개 업종 카테고리 탭 전환 데이터 및 로직
-        const categoryData = {
-            cafe: {
-                name: '카페·디저트',
-                subs: ['• 시그니처 신메뉴 출시', '• 비 오는 날 게릴라 할인', '• 모닝 커피 타임세일', '• 디저트 세트 페어링'],
-                copy: '"매일 아침 갓 구운 버터향 가득 크로플과 스페셜티 라떼의 완벽한 조화 ☕ 오늘 방문하시는 분들께 아메리카노 사이즈업 혜택을 드립니다!"',
-                tags: '#동네카페 #디저트맛집 #크로플맛집 #감성카페 #스페셜티커피 #주말데이트'
-            },
-            food: {
-                name: '음식점·주점',
-                subs: ['• 점심 특선 메뉴 안내', '• 주말 가족 외식 할인', '• 비 오는 날 전/안주 서비스', '• 배달 리뷰 감사 이벤트'],
-                copy: '"매일 새벽 공수한 신선한 재료로 정성껏 끓여냈습니다 🍲 이번 주 저녁 방문 테이블에는 시원한 음료 또는 사이드 메뉴를 서비스로 드립니다!"',
-                tags: '#동네맛집 #저녁메뉴추천 #가족외식 #가성비맛집 #오늘뭐먹지 #맛집스타그램'
-            },
-            beauty: {
-                name: '뷰티·네일',
-                subs: ['• 이달의 아트 신상 디자인', '• 첫 방문 20% 웰컴 할인', '• 손상모 프리미엄 클리닉', '• 지인 동반 예약 혜택'],
-                copy: '"분위기 전환이 필요한 계절, 나에게 딱 맞는 퍼스널 스타일을 찾아보세요 💅 이번 주 사전 예약 고객님께는 영양 케어 서비스를 무료로 추가해 드립니다!"',
-                tags: '#동네네일샵 #이달의아트 #헤어스타일추천 #뷰티이벤트 #기분전환 #예약필수'
-            },
-            craft: {
-                name: '공방·클래스',
-                subs: ['• 주말 커플 원데이클래스', '• 기념일 맞춤 선물 제작', '• 얼리버드 수강료 할인', '• 기업·단체 출강 안내'],
-                copy: '"바쁜 일상 속 오롯이 나에게 집중하는 힐링 타임 🕯️ 초보자도 쉽게 완성할 수 있는 원데이 클래스 오픈 기념, 이번 주 예약 시 미니 작품을 추가 증정합니다!"',
-                tags: '#원데이클래스 #동네공방 #이색데이트 #핸드메이드 #취미생활 #주말데이트추천'
-            },
-            fitness: {
-                name: '헬스·필라테스',
-                subs: ['• 1:1 무료 체형 분석 체험', '• 직장인 퇴근 후 그룹 PT', '• 여름·연말 바디프로필반', '• 친구 동반 등록 할인'],
-                copy: '"작심삼일은 이제 그만! 전문 강사진의 1:1 맞춤 코칭으로 건강한 변화를 시작하세요 💪 이번 달 신규 등록 시 체성분 정밀 분석 및 2회 추가 세션을 드립니다!"',
-                tags: '#동네헬스장 #기구필라테스 #오운완 #체형교정 #다이어트식단 #운동하는직장인'
-            },
-            medical: {
-                name: '병의원·약국',
-                subs: ['• 환절기 건강검진 안내', '• 야간·주말 진료 시간 공지', '• 계절별 영양제·면역 관리', '• 비대면·사전 예약 안내'],
-                copy: '"일교차가 큰 환절기, 우리 가족 건강 주치의가 꼼꼼하게 살펴드리겠습니다 🩺 평일 바쁜 직장인분들을 위해 매주 수요일 저녁 8시까지 야간 진료를 운영합니다."',
-                tags: '#동네병원 #야간진료 #환절기건강 #건강검진 #친절한약국 #가족주치의'
-            },
-            edu: {
-                name: '학원·교육',
-                subs: ['• 새 학기 레벨테스트 신청', '• 방학 특강 집중 커리큘럼', '• 소수정예 1:1 밀착 관리', '• 학부모 설명회 초대'],
-                copy: '"아이의 학습 자신감을 깨우는 맞춤형 커리큘럼 📚 새 학기를 맞아 무료 1:1 학습 진단 테스트 및 입학 상담을 진행합니다. 소수정예 정원 마감 전 신청하세요!"',
-                tags: '#동네학원 #새학기준비 #자기주도학습 #초등영어 #수학전문학원 #학습코칭'
-            },
-            shop: {
-                name: '소매·편집샵',
-                subs: ['• 시즌오프 패밀리 세일', '• 신상품 입고 룩북 공개', '• 당근 단골 추가 10% 쿠폰', '• 선물 포장 무료 서비스'],
-                copy: '"일상에 감각을 더하는 시즌 신상품이 입고되었습니다 🛍️ 이번 주말 오프라인 매장을 방문해 주시는 단골 고객님들께 전 품목 10% 추가 할인 혜택을 드립니다!"',
-                tags: '#동네편집샵 #신상입고 #소품샵투어 #선물추천 #감성소품 #주말쇼핑'
-            }
-        };
-
-        function selectCategory(btn, catKey) {
-            document.querySelectorAll('.cat-tab').forEach(tab => {
-                tab.className = 'cat-tab flex flex-col items-center gap-2 min-w-[76px] text-slate-500 hover:text-slate-800 font-medium transition';
-                tab.querySelector('div').className = 'w-11 h-11 rounded-2xl bg-slate-50 border border-slate-200/70 flex items-center justify-center';
-                tab.querySelector('.cat-bar').className = 'cat-bar w-full h-[2.5px] bg-transparent rounded-full';
-            });
-
-            btn.className = 'cat-tab active-cat flex flex-col items-center gap-2 min-w-[76px] text-mblue-600 font-extrabold transition';
-            btn.querySelector('div').className = 'w-11 h-11 rounded-2xl bg-mblue-50 border border-mblue-200 flex items-center justify-center';
-            btn.querySelector('.cat-bar').className = 'cat-bar w-full h-[2.5px] bg-mblue-600 rounded-full';
-
-            const data = categoryData[catKey];
-            const subGrid = document.getElementById('cat-sub-grid');
-            subGrid.innerHTML = data.subs.map(item => `<div class="p-3.5 rounded-xl bg-slate-50 border border-slate-100">${item}</div>`).join('');
-
-            document.getElementById('cat-badge').innerText = `${data.name} AI 추천 샘플`;
-            document.getElementById('cat-copy-text').innerText = data.copy;
-            document.getElementById('cat-tags-text').innerText = data.tags;
-
-            const dashLink = document.getElementById('cat-dashboard-link');
-            dashLink.href = `dashboard.html?category=${catKey}`;
-            dashLink.innerHTML = `${data.name} 맞춤형 대시보드 바로 열기 <i data-lucide="chevron-right" class="w-4 h-4"></i>`;
-            lucide.createIcons();
-        }
-
-        function copyCategorySample() {
-            const copy = document.getElementById('cat-copy-text').innerText;
-            const tags = document.getElementById('cat-tags-text').innerText;
-            copyToClipboard(`${copy}\n\n${tags}`);
-            showToast('📋 업종 맞춤 샘플 문구가 복사되었습니다!');
-        }
-
-        function copyToClipboard(text) {
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-        }
-    </script>
+        alert(`🎉 [${store_name}] 무료 체험 신청이 완료되었습니다! 대시보드로 이동합니다.`);
+        window.location.href = `dashboard.html?category=${encodeURIComponent(category)}`;
+      } catch (err) {
+        console.error(err);
+        alert('신청 정보 저장 중 일시적인 오류가 발생했으나, 대시보드는 바로 이용하실 수 있습니다.');
+        window.location.href = 'dashboard.html';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '신청 완료하고 대시보드 보기';
+      }
+    }
+  </script>
 </body>
 </html>
